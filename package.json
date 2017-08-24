@@ -1,0 +1,51 @@
+{
+  "name": "bitclave-crowdsale",
+  "version": "1.0.0",
+  "description": "Solidity Contracts for the BitClave CAT Token",
+  "main": "y",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "zeppelin-solidity": "^1.2.0"
+  },
+  "devDependencies": {
+    "babel-polyfill": "^6.23.0",
+    "babel-preset-env": "^1.6.0",
+    "babel-preset-flow": "^6.23.0",
+    "babel-register": "^6.24.1",
+    "chai": "^4.1.0",
+    "chai-as-promised": "^7.1.1",
+    "chai-bignumber": "^2.0.1",
+    "eslint": "^4.2.0",
+    "eslint-config-standard": "^10.2.1",
+    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-node": "^5.1.0",
+    "eslint-plugin-promise": "^3.5.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "ethereumjs-testrpc": "^4.0.1",
+    "solium": "^0.5.5",
+    "truffle": "^3.4.5"
+  },
+  "scripts": {
+    "test": "./scripts/test.sh",
+    "eslint": "eslint test/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bitclave/crowdsale.git"
+  },
+  "keywords": [
+    "bitclave",
+    "cat",
+    "solidity",
+    "truffle",
+    "crowdsale"
+  ],
+  "author": "BitClave",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bitclave/crowdsale/issues"
+  },
+  "homepage": "https://github.com/bitclave/crowdsale#readme"
+}
