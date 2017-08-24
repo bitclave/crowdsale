@@ -16,19 +16,23 @@ contract WhitelistedCrowdsale is Crowdsale, Ownable {
     // list of addresses that can purchase before crowdsale opens
     mapping (address => bool) public whitelist;
 
-    function addToWhitelist(address buyer) public onlyOwner {
-        require(buyer != 0x0);
-        whitelist[buyer] = true; 
+    function addToWhitelist(address _buyer) public onlyOwner {
+        require(_buyer != 0x0);
+        require(whitelist[_buyer] == false);
+
+        whitelist[_buyer] = true;
     }
 
-    function removeFromWhitelist(address buyer) public onlyOwner {
-        require(buyer != 0x0);
-        whitelist[buyer] = false; 
+    function removeFromWhitelist(address _buyer) public onlyOwner {
+        require(_buyer != 0x0);
+        require(whitelist[_buyer] == true);
+
+        delete whitelist[_buyer];
     }
 
     // @return true if buyer is whitelisted
-    function isWhitelisted(address buyer) public constant returns (bool) {
-        return whitelist[buyer];
+    function isWhitelisted(address _buyer) public constant returns (bool) {
+        return whitelist[_buyer];
     }
 
     // overriding Crowdsale#validPurchase to add whitelist logic
