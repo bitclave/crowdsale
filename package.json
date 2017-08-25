@@ -29,7 +29,8 @@
   },
   "scripts": {
     "test": "./scripts/test.sh",
-    "eslint": "eslint test/"
+    "eslint": "eslint test/",
+    "compile": "truffle compile",
   },
   "repository": {
     "type": "git",
