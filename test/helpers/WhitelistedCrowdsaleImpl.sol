@@ -1,6 +1,6 @@
 pragma solidity ^0.4.11;
 
-import '../../contracts/WhitelistedCrowdsale.sol';
+import '../../contracts/crowdsale/WhitelistedCrowdsale.sol';
 
 
 contract WhitelistedCrowdsaleImpl is WhitelistedCrowdsale {

@@ -1,5 +1,5 @@
-var CAToken = artifacts.require("./CAToken.sol");
+var CAToken = artifacts.require("CAToken");
 
 module.exports = function(deployer) {
-  	deployer.deploy(CAToken);
+	deployer.deploy(CAToken);
 };
