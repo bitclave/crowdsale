@@ -33,7 +33,7 @@
     "build": "solc -o ./build --bin --ast --asm --optimize --overwrite zeppelin-solidity/=/Users/yurin-iv/Projects/crowdfunding/node_modules/zeppelin-solidity/ ./contracts/CAToken.sol",
     "migrate": "truffle migrate",
     "wallet": "/Applications/Ethereum\\ Wallet.app/Contents/MacOS/Ethereum\\ Wallet --rpc http://localhost:8545",
-    "test-rpc": "./scripts/testrpc.sh"
+    "rpc": "./scripts/rpc.sh"
   },
   "repository": {
     "type": "git",
