@@ -35,9 +35,10 @@ contract CrowdsaleRate is WhitelistedCrowdsale {
     }
 
     function setBuyerRate(address buyer, uint256 rate) onlyOwner public {
-        require(rate != 0);
-        require(isWhitelisted(buyer));
         require(block.number < startBlock);
+        require(rate > 0);
+        require(isWhitelisted(buyer));
+        require(buyerRate[buyer] != rate);
 
         buyerRate[buyer] = rate;
 
@@ -45,8 +46,9 @@ contract CrowdsaleRate is WhitelistedCrowdsale {
     }
 
     function setInitialRate(uint256 rate) onlyOwner public {
-        require(rate != 0);
         require(block.number < startBlock);
+        require(rate != 0);
+        require(initialRate != rate);
 
         initialRate = rate;
 
@@ -56,13 +58,14 @@ contract CrowdsaleRate is WhitelistedCrowdsale {
     function setEndRate(uint256 rate) onlyOwner public {
         require(rate != 0);
         require(block.number < startBlock);
+        require(endRate != rate);
 
         endRate = rate;
 
         EndRateChange(rate);
     }
 
-    function getRate() internal returns(uint256) {
+    function getRate() returns(uint256) {
         // some early buyers are offered a discount on the crowdsale price
         if (buyerRate[msg.sender] != 0) {
             return buyerRate[msg.sender];
@@ -77,6 +80,8 @@ contract CrowdsaleRate is WhitelistedCrowdsale {
         uint256 elapsed = block.number - startBlock;
         uint256 rateRange = initialRate - endRate;
         uint256 blockRange = endBlock - startBlock;
+
+        return initialRate;
 
         return initialRate.sub(rateRange.mul(elapsed).div(blockRange));
     }
