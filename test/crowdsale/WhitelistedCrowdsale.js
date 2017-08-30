@@ -1,4 +1,4 @@
-import { ether, EVMThrow } from '../utils'
+import { advanceToBlock, ether, EVMThrow } from '../utils'
 
 const WhitelistedCrowdsale = artifacts.require('../helpers/WhitelistedCrowdsaleImpl.sol')
 const MintableToken = artifacts.require('zeppelin-solidity/contracts/tokens/MintableToken')
@@ -9,10 +9,10 @@ contract('WhitelistCrowdsale', function ([_, wallet, beneficiary, sender]) {
     const amount = ether(1)
 
     beforeEach(async function () {
-        let startBlock = web3.eth.blockNumber + 10
-        let endBlock = startBlock + 10
+        this.startBlock = web3.eth.blockNumber + 10
+        this.endBlock = this.startBlock + 10
 
-        this.crowdsale = await WhitelistedCrowdsale.new(startBlock, endBlock, rate, wallet)
+        this.crowdsale = await WhitelistedCrowdsale.new(this.startBlock, this.endBlock, rate, wallet)
         this.token = MintableToken.at(await this.crowdsale.token())
     })
 
@@ -20,7 +20,7 @@ contract('WhitelistCrowdsale', function ([_, wallet, beneficiary, sender]) {
         it('should add address to whitelist', async function () {
             await this.crowdsale.addToWhitelist(sender)
 
-            const whitelisted = await this.crowdsale.isWhitelisted(sender)
+            const whitelisted = await this.crowdsale.whitelist(sender)
             whitelisted.should.equal(true)
         })
 
@@ -48,7 +48,7 @@ contract('WhitelistCrowdsale', function ([_, wallet, beneficiary, sender]) {
         it('should remove address from whitelist', async function () {
             await this.crowdsale.removeFromWhitelist(sender)
 
-            const whitelisted = await this.crowdsale.isWhitelisted(sender)
+            const whitelisted = await this.crowdsale.whitelist(sender)
             whitelisted.should.equal(false)
         })
 
@@ -65,6 +65,42 @@ contract('WhitelistCrowdsale', function ([_, wallet, beneficiary, sender]) {
 
         it('only owner can add to whitelist', async function() {
             await this.crowdsale.removeFromWhitelist(sender, {from: sender}).should.be.rejectedWith(EVMThrow)
+        })
+    })
+
+    describe('is whitelisted', function () {
+        // todo title
+        it('false', async function () {
+            const whitelisted = await this.crowdsale.isWhitelisted(sender)
+            whitelisted.should.equal(false)
+        })
+
+        // todo title
+        it('true', async function () {
+            await this.crowdsale.addToWhitelist(sender)
+
+            const whitelisted = await this.crowdsale.isWhitelisted(sender)
+            whitelisted.should.equal(true)
+        })
+    })
+
+    describe('valid purchase', function () {
+        // todo title
+        it('success', async function () {
+            await this.crowdsale.addToWhitelist(sender)
+            await this.crowdsale.buyTokens(beneficiary, {amount, from: sender}).fulfilled
+        })
+
+        // todo title
+        it('hasEnded() error', async function () {
+            await this.crowdsale.addToWhitelist(sender)
+            await advanceToBlock(this.endBlock)
+
+            await this.crowdsale.buyTokens(beneficiary, {amount, from: sender}).should.be.rejectedWith(EVMThrow)
+        })
+
+        it('!isWhitelisted() error', async function () {
+            await this.crowdsale.buyTokens(beneficiary, {amount, from: sender}).should.be.rejectedWith(EVMThrow)
         })
     })
 })
