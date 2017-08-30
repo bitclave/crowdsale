@@ -7,12 +7,7 @@ import "./CAToken.sol";
 
 
 contract CATCrowdsale is FinalizableCrowdsale, CappedCrowdsale {
-
-    uint256 public constant TOTAL_SHARE = 100;
-    uint256 public constant CROWDSALE_SHARE = 50;
-    uint256 public constant FOUNDATION_SHARE = 50;
     uint256 public constant DECIMALS = 18;
-
     uint256 public constant CAP = 2 * (10**9) * 10**DECIMALS;  // 2MM CAT
 
     event WalletChange(address wallet);
