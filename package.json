@@ -23,17 +23,18 @@
     "eslint-plugin-node": "^5.1.0",
     "eslint-plugin-promise": "^3.5.0",
     "eslint-plugin-standard": "^3.0.1",
-    "ethereumjs-testrpc": "^4.0.1",
+    "ethereumjs-testrpc": "^4.1.1",
     "solium": "^0.5.5",
     "truffle": "^3.4.5"
   },
   "scripts": {
-    "test": "./scripts/test.sh",
+    "test": "scripts/test.sh",
+    "coverage": "scripts/coverage.sh",
     "eslint": "eslint test/",
     "build": "solc -o ./build --bin --ast --asm --optimize --overwrite zeppelin-solidity/=/Users/yurin-iv/Projects/crowdfunding/node_modules/zeppelin-solidity/ ./contracts/CAToken.sol",
     "migrate": "truffle migrate",
     "wallet": "/Applications/Ethereum\\ Wallet.app/Contents/MacOS/Ethereum\\ Wallet --rpc http://localhost:8545",
-    "rpc": "./scripts/rpc.sh"
+    "rpc": "scripts/rpc.sh"
   },
   "repository": {
     "type": "git",
