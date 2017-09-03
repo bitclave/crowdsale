@@ -16,7 +16,7 @@ contract('WhitelistCrowdsale', function ([_, wallet, beneficiary, sender]) {
         this.token = MintableToken.at(await this.crowdsale.token())
     })
 
-    describe('add to whitelist', function () {
+    describe('addToWhitelist()', function () {
         it('should add address to whitelist', async function () {
             await this.crowdsale.addToWhitelist(sender)
 
@@ -40,7 +40,7 @@ contract('WhitelistCrowdsale', function ([_, wallet, beneficiary, sender]) {
         })
     })
 
-    describe('remove from whitelist', function () {
+    describe('removeFromWhitelist()', function () {
         beforeEach(async function () {
             await this.crowdsale.addToWhitelist(sender)
         })
@@ -68,7 +68,7 @@ contract('WhitelistCrowdsale', function ([_, wallet, beneficiary, sender]) {
         })
     })
 
-    describe('is whitelisted', function () {
+    describe('isWhitelisted()', function () {
         // todo title
         it('false', async function () {
             const whitelisted = await this.crowdsale.isWhitelisted(sender)
@@ -84,7 +84,7 @@ contract('WhitelistCrowdsale', function ([_, wallet, beneficiary, sender]) {
         })
     })
 
-    describe('valid purchase', function () {
+    describe('validPurchase()', function () {
         // todo title
         it('success', async function () {
             await this.crowdsale.addToWhitelist(sender)

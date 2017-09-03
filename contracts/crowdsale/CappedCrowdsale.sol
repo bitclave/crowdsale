@@ -31,12 +31,15 @@ contract CappedCrowdsale is CrowdsaleRate {
     // overriding Crowdsale#hasEnded to add cap logic
     // @return true if crowdsale event has ended
     function hasEnded() public constant returns (bool) {
-        bool capReached = weiRaised >= cap;
+        uint256 totalSupply = token.totalSupply();
+
+        bool capReached = totalSupply >= cap;
         return super.hasEnded() || capReached;
     }
 
     function getAmountToken(uint256 weiAmount) internal returns(uint256) {
-        uint256 rate = getRate();
-        return weiAmount.mul(rate);
+        uint256 rate = getRateFor1Eth();
+        uint256 decimals = 10**DECIMALS;
+        return rate.mul(weiAmount).div(decimals);
     }
 }

@@ -11,7 +11,7 @@ contract WhitelistedCrowdsaleImpl is WhitelistedCrowdsale {
         address _wallet
     )
         Crowdsale(_startBlock, _endBlock, _rate, _wallet)
-        WhitelistedCrowdsale() 
+        WhitelistedCrowdsale()
     {
     }
 }

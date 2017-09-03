@@ -18,12 +18,13 @@ contract CATCrowdsale is FinalizableCrowdsale, CappedCrowdsale {
         uint256 _initialRate,
         uint256 _endRate,
         uint256 _preferentialRate,
+        uint256 _ethRate,
         address _wallet
     )
         CappedCrowdsale(CAP)
         WhitelistedCrowdsale()
         FinalizableCrowdsale()
-        CrowdsaleRate(_initialRate, _endRate, _preferentialRate)
+        CrowdsaleRate(_initialRate, _endRate, _preferentialRate, _ethRate)
         Crowdsale(_startBlock, _endBlock, _initialRate, _wallet)
     {
         CAToken(token).pause();

@@ -10,10 +10,11 @@ contract CrowdsaleRateImpl is CrowdsaleRate {
         uint256 _initialRate,
         uint256 _endRate,
         uint256 _preferentialRate,
+        uint256 _ethRate,
         address _wallet
     )
         Crowdsale(_startBlock, _endBlock, _initialRate, _wallet)
-        CrowdsaleRate(_initialRate, _endRate, _preferentialRate)
+        CrowdsaleRate(_initialRate, _endRate, _preferentialRate, _ethRate)
     {
     }
 }
