@@ -25,7 +25,7 @@
     "eslint-plugin-standard": "^3.0.1",
     "ethereumjs-testrpc": "^4.1.1",
     "solium": "^0.5.5",
-    "truffle": "^3.4.5"
+    "truffle": "^3.4.9"
   },
   "scripts": {
     "test": "scripts/test.sh",
