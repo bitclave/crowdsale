@@ -1,25 +1,38 @@
 // @flow
 'use strict'
 
-const expect = require('chai').expect
+const BigNumber = web3.BigNumber;
+const expect = require('chai').expect;
+const should = require('chai')
+    .use(require('chai-as-promised'))
+    .use(require('chai-bignumber')(web3.BigNumber))
+    .should();
 
-const { advanceToBlock, ether, should, EVMThrow } = require('./utils')
-const Crowdsale = artifacts.require('./CATCrowdsale.sol')
-const Token = artifacts.require('./CAToken.sol')
 
-const BigNumber = web3.BigNumber
-const tokenDecimals = 18
-const tokensForOwner = 1 * (10**9)
-const tokensForPresale = 150 * (10**6)
+import ether from './helpers/ether';
+import {advanceBlock} from './helpers/advanceToBlock';
+import {increaseTimeTo, duration} from './helpers/increaseTime';
+import latestTime from './helpers/latestTime';
+import EVMThrow from './helpers/EVMThrow';
+
+const Crowdsale = artifacts.require('./CATCrowdsale.sol');
+const Token = artifacts.require('./CAToken.sol');
+
+const tokenDecimals = 18;
+const tokensForOwner = 1 * (10**9);
+const tokensForPresale = 150 * (10**6);
 
 contract('Crowdsale', function ([_, wallet, bitClaveWallet, presaleWallet, wallet2, wallet3]) {
 
-    const startDate = web3.eth.getBlock('latest').timestamp;
-    const endDate = startDate + 3600*1000;
+    const startTime = latestTime() + duration.weeks(1);
+    const endTime = startTime + duration.weeks(1);
+    const afterEndTime = endTime + duration.seconds(1);
 
     it('creates 1 billion of tokens for its creator', async function () {
 
-        const crowdsale = await Crowdsale.new(startDate, endDate, 10**tokenDecimals, wallet, bitClaveWallet, presaleWallet);
+        await increaseTimeTo(startTime);
+
+        const crowdsale = await Crowdsale.new(startTime, endTime, 10**tokenDecimals, wallet, bitClaveWallet, presaleWallet);
         const token = Token.at(await crowdsale.token.call());
         await crowdsale.setPaused(false);
 
@@ -60,7 +73,7 @@ contract('Crowdsale', function ([_, wallet, bitClaveWallet, presaleWallet, walle
 
     it('creates tokens when creator asks', async function () {
 
-        const crowdsale = await Crowdsale.new(startDate, endDate, 10**tokenDecimals, wallet, bitClaveWallet, presaleWallet);
+        const crowdsale = await Crowdsale.new(startTime, endTime, 10**tokenDecimals, wallet, bitClaveWallet, presaleWallet);
         const token = Token.at(await crowdsale.token.call());
         await crowdsale.setPaused(false);
 
@@ -92,6 +105,7 @@ contract('Crowdsale', function ([_, wallet, bitClaveWallet, presaleWallet, walle
 
         {
             // Create 800 CAT for wallet2
+            console.log('zzz')
             await crowdsale.buyTokens(wallet3, {from: wallet3, value: 800});
 
             const event = crowdsale.TokenPurchase({_from:web3.eth.coinbase}, {fromBlock: 'latest'});

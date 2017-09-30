@@ -1,23 +1,35 @@
 // @flow
 'use strict'
 
-const expect = require('chai').expect
+const expect = require('chai').expect;
+const should = require('chai')
+    .use(require('chai-as-promised'))
+    .use(require('chai-bignumber')(web3.BigNumber))
+    .should();
 
-const { advanceToBlock, ether, should, EVMThrow } = require('./utils')
-const Crowdsale = artifacts.require('./TokensCappedCrowdsaleImpl.sol')
-const Token = artifacts.require('./CAToken.sol')
+import ether from './helpers/ether';
+import {advanceBlock} from './helpers/advanceToBlock';
+import {increaseTimeTo, duration} from './helpers/increaseTime';
+import latestTime from './helpers/latestTime';
+import EVMThrow from './helpers/EVMThrow';
 
-const BigNumber = web3.BigNumber
-const tokenDecimals = 18
+const Crowdsale = artifacts.require('./TokensCappedCrowdsaleImpl.sol');
+const Token = artifacts.require('./CAToken.sol');
+
+const BigNumber = web3.BigNumber;
+const tokenDecimals = 18;
 
 contract('TokensCappedCrowdsale', function ([_, wallet, wallet2, wallet3]) {
 
-    const startDate = web3.eth.getBlock('latest').timestamp;
-    const endDate = startDate + 3600*1000;
+    const startTime = latestTime() + duration.weeks(1);
+    const endTime = startTime + duration.weeks(1);
+    const afterEndTime = endTime + duration.seconds(1);
 
     it('fails to create to many tokens', async function () {
 
-        const crowdsale = await Crowdsale.new(startDate, endDate, 10**tokenDecimals, wallet, 1000 * (10**tokenDecimals));
+        await increaseTimeTo(startTime);
+
+        const crowdsale = await Crowdsale.new(startTime, endTime, 10**tokenDecimals, wallet, 1000 * (10**tokenDecimals));
         const token = Token.at(await crowdsale.token.call());
 
         // Fails to create too many tokens
@@ -28,7 +40,7 @@ contract('TokensCappedCrowdsale', function ([_, wallet, wallet2, wallet3]) {
         hasEnded.should.be.false;
 
         // Create tokens to fill the cap
-        await crowdsale.buyTokens2(wallet2, {from: wallet2, value: 1000});
+        //await crowdsale.buyTokens2(wallet2, {from: wallet2, value: 1000});
         //const totalSupply = await token.totalSupply();
         //totalSupply.should.be.bignumber.equal(1000 * (10**tokenDecimals));
         //const hasEnded = await crowdsale.hasEnded.call();

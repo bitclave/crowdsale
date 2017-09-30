@@ -23,23 +23,4 @@ contract TokensCappedCrowdsaleImpl is Crowdsale, TokensCappedCrowdsale {
         return new CAToken();
     }
 
-      // low level token purchase function
-    function buyTokens2(address beneficiary) public payable {
-        require(beneficiary != 0x0);
-        require(validPurchase());
-
-        uint256 weiAmount = msg.value;
-
-        // calculate token amount to be created
-        uint256 tokens = weiAmount.mul(rate);
-
-        // update state
-        weiRaised = weiRaised.add(weiAmount);
-
-        token.mint(beneficiary, tokens);
-        TokenPurchase(msg.sender, beneficiary, weiAmount, tokens);
-
-        forwardFunds();
-    }
-
 }
