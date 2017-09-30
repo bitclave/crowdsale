@@ -2,17 +2,17 @@ pragma solidity ^0.4.11;
 
 import "zeppelin-solidity/contracts/ownership/Ownable.sol";
 import "./TokensCappedCrowdsale.sol";
-import "./PausibleCrowdsale.sol";
+import "./PausableCrowdsale.sol";
 import "./CAToken.sol";
 
 
-contract CATCrowdsale is Ownable, TokensCappedCrowdsale(CATCrowdsale.CAP), PausibleCrowdsale(true) {
+contract CATCrowdsale is Ownable, TokensCappedCrowdsale(CATCrowdsale.CAP), PausableCrowdsale(true) {
 
     // Constants
     uint256 public constant DECIMALS = 18;
     uint256 public constant CAP = 2 * (10**9) * (10**DECIMALS);                // 2B CAT
     uint256 public constant BITCLAVE_AMOUNT = 1 * (10**9) * (10**DECIMALS);    // 1B CAT
-    uint256 public constant PRESALED_AMOUNT = 150 * (10**6) * (10**DECIMALS);  // 150M CAT
+    uint256 public constant PRESALE_AMOUNT = 150 * (10**6) * (10**DECIMALS);   // 150M CAT
 
     //uint256 public startTime;
     //uint256 public endTime;
@@ -29,12 +29,12 @@ contract CATCrowdsale is Ownable, TokensCappedCrowdsale(CATCrowdsale.CAP), Pausi
         uint256 _rate,
         address _wallet,
         address _bitClaveWallet,
-        address _presaledWallet
+        address _presaleWallet
     )
         Crowdsale(_startTime, _endTime, _rate, _wallet)
     {
         mintTokens(_bitClaveWallet, BITCLAVE_AMOUNT);
-        mintTokens(_presaledWallet, PRESALED_AMOUNT);
+        mintTokens(_presaleWallet, PRESALE_AMOUNT);
     }
 
     // Overrided methods

@@ -12,14 +12,14 @@ const tokenDecimals = 18
 const tokensForOwner = 1 * (10**9)
 const tokensForPresale = 150 * (10**6)
 
-contract('Crowdsale', function ([_, wallet, bitClaveWallet, presaledWallet, wallet2, wallet3]) {
+contract('Crowdsale', function ([_, wallet, bitClaveWallet, presaleWallet, wallet2, wallet3]) {
 
     const startDate = web3.eth.getBlock('latest').timestamp;
     const endDate = startDate + 3600*1000;
 
     it('creates 1 billion of tokens for its creator', async function () {
 
-        const crowdsale = await Crowdsale.new(startDate, endDate, 10**tokenDecimals, wallet, bitClaveWallet, presaledWallet);
+        const crowdsale = await Crowdsale.new(startDate, endDate, 10**tokenDecimals, wallet, bitClaveWallet, presaleWallet);
         const token = Token.at(await crowdsale.token.call());
         await crowdsale.setPaused(false);
 
@@ -38,12 +38,12 @@ contract('Crowdsale', function ([_, wallet, bitClaveWallet, presaledWallet, wall
                 const balance = await token.balanceOf(bitClaveWallet);
                 balance.should.be.bignumber.equal(tokensForOwner * (10**tokenDecimals));
             }
-            else if (response.args.beneficiary == presaledWallet) {
+            else if (response.args.beneficiary == presaleWallet) {
                 // Check event arguments
                 response.args.amount.should.be.bignumber.equal(tokensForPresale * (10**tokenDecimals));
 
                 // Check balace
-                const balance = await token.balanceOf(presaledWallet);
+                const balance = await token.balanceOf(presaleWallet);
                 balance.should.be.bignumber.equal(tokensForPresale * (10**tokenDecimals));
 
                 event.stopWatching();
@@ -60,7 +60,7 @@ contract('Crowdsale', function ([_, wallet, bitClaveWallet, presaledWallet, wall
 
     it('creates tokens when creator asks', async function () {
 
-        const crowdsale = await Crowdsale.new(startDate, endDate, 10**tokenDecimals, wallet, bitClaveWallet, presaledWallet);
+        const crowdsale = await Crowdsale.new(startDate, endDate, 10**tokenDecimals, wallet, bitClaveWallet, presaleWallet);
         const token = Token.at(await crowdsale.token.call());
         await crowdsale.setPaused(false);
 
