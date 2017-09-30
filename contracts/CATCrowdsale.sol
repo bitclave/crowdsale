@@ -1,18 +1,21 @@
 pragma solidity ^0.4.11;
 
 import "zeppelin-solidity/contracts/ownership/Ownable.sol";
-import "./CappedTokensCrowdsale.sol";
+import "./TokensCappedCrowdsale.sol";
 import "./PausibleCrowdsale.sol";
 import "./CAToken.sol";
 
 
-contract CATCrowdsale is Ownable, CappedTokensCrowdsale(CATCrowdsale.CAP), PausibleCrowdsale(true) {
+contract CATCrowdsale is Ownable, TokensCappedCrowdsale(CATCrowdsale.CAP), PausibleCrowdsale(true) {
 
     // Constants
     uint256 public constant DECIMALS = 18;
     uint256 public constant CAP = 2 * (10**9) * (10**DECIMALS);                // 2B CAT
     uint256 public constant BITCLAVE_AMOUNT = 1 * (10**9) * (10**DECIMALS);    // 1B CAT
     uint256 public constant PRESALED_AMOUNT = 150 * (10**6) * (10**DECIMALS);  // 150M CAT
+
+    //uint256 public startTime;
+    //uint256 public endTime;
 
     // Events
     event TokenMint(address indexed beneficiary, uint256 amount);
@@ -40,15 +43,14 @@ contract CATCrowdsale is Ownable, CappedTokensCrowdsale(CATCrowdsale.CAP), Pausi
         return new CAToken();
     }
 
-    function validPurchase() internal constant returns (bool) {
-        return true;
-    }
-
     // Owner methods
 
-    function mintTokens(address beneficiary, uint256 tokens) public validPurchaseModifier onlyOwner {
+    function mintTokens(address beneficiary, uint256 tokens) public onlyOwner {
         require(beneficiary != 0x0);
-        
+        //TODO: uncomment
+        //require(token.totalSupply() <= tokensCap);
+        //require(now >= startTime && now <= endTime);
+
         token.mint(beneficiary, tokens);
         TokenMint(beneficiary, tokens);
     }

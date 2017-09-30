@@ -4,23 +4,19 @@ import "zeppelin-solidity/contracts/crowdsale/Crowdsale.sol";
 
 
 // Crowdsale capped by number of minted tokens
-contract CappedTokensCrowdsale is Crowdsale {
+contract TokensCappedCrowdsale is Crowdsale {
 
     uint256 public tokensCap;
 
-    function CappedTokensCrowdsale(uint256 _tokensCap) {
+    function TokensCappedCrowdsale(uint256 _tokensCap) {
         require(_tokensCap > 0);
         tokensCap = _tokensCap;
     }
 
-    modifier validPurchaseModifier {
-        _;
-        require(validPurchase());
-    }
-
-    // overriding Crowdsale#buyTokens to add modifier validPurchaseModifier
-    function buyTokens(address beneficiary) public payable validPurchaseModifier {
+    // overriding Crowdsale#buyTokens to add validPurchase check after buying
+    function buyTokens(address beneficiary) public payable {
         super.buyTokens(beneficiary);
+        require(validPurchase());
     }
 
     // overriding Crowdsale#validPurchase to add extra tokens cap logic

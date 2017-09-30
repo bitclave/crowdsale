@@ -16,6 +16,7 @@ contract PausibleCrowdsale is Ownable, Crowdsale {
     }
 
     function setPaused(bool _paused) public onlyOwner {
+        require(paused != _paused);
         paused = _paused;
         PausedChanged(_paused);
     }
