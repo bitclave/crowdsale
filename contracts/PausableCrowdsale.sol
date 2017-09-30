@@ -5,7 +5,7 @@ import "zeppelin-solidity/contracts/ownership/Ownable.sol";
 
 
 // Crowdsale which can be paused by owner at any time
-contract PausableCrowdsale is Ownable, Crowdsale {
+contract PausableCrowdsale is Crowdsale, Ownable {
 
     bool public paused;
 

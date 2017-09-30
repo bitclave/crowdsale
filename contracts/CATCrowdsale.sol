@@ -1,12 +1,13 @@
 pragma solidity ^0.4.11;
 
 import "zeppelin-solidity/contracts/ownership/Ownable.sol";
+import "zeppelin-solidity/contracts/crowdsale/FinalizableCrowdsale.sol";
 import "./TokensCappedCrowdsale.sol";
 import "./PausableCrowdsale.sol";
 import "./CAToken.sol";
 
 
-contract CATCrowdsale is Ownable, TokensCappedCrowdsale(CATCrowdsale.CAP), PausableCrowdsale(true) {
+contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsale.CAP), PausableCrowdsale(true) {
 
     // Constants
     uint256 public constant DECIMALS = 18;
@@ -47,10 +48,11 @@ contract CATCrowdsale is Ownable, TokensCappedCrowdsale(CATCrowdsale.CAP), Pausa
 
     function mintTokens(address beneficiary, uint256 tokens) public onlyOwner {
         require(beneficiary != 0x0);
-        //TODO: uncomment
-        //require(token.totalSupply() <= tokensCap);
-        //require(now >= startTime && now <= endTime);
-
+        require(now >= startTime && now <= endTime);          // Crowdsale (without msg.value check)
+        require(!isFinalized);                                // FinalizableCrowdsale
+        require((token.totalSupply() + tokens) <= tokensCap); // TokensCappedCrowdsale
+        //require(!paused);                                   // NOT PausableCrowdsale
+        
         token.mint(beneficiary, tokens);
         TokenMint(beneficiary, tokens);
     }

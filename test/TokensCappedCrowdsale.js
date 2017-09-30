@@ -1,6 +1,7 @@
 // @flow
 'use strict'
 
+const BigNumber = web3.BigNumber;
 const expect = require('chai').expect;
 const should = require('chai')
     .use(require('chai-as-promised'))
@@ -14,9 +15,8 @@ import latestTime from './helpers/latestTime';
 import EVMThrow from './helpers/EVMThrow';
 
 const Crowdsale = artifacts.require('./TokensCappedCrowdsaleImpl.sol');
-const Token = artifacts.require('./CAToken.sol');
+const Token = artifacts.require('./MintableToken.sol');
 
-const BigNumber = web3.BigNumber;
 const tokenDecimals = 18;
 
 contract('TokensCappedCrowdsale', function ([_, wallet, wallet2, wallet3]) {

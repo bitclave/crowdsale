@@ -1,8 +1,8 @@
 pragma solidity ^0.4.11;
 
 import "zeppelin-solidity/contracts/crowdsale/Crowdsale.sol";
+import "zeppelin-solidity/contracts/token/MintableToken.sol";
 import "../../contracts/TokensCappedCrowdsale.sol";
-import "../../contracts/CAToken.sol";
 
 // Crowdsale capped by number of minted tokens
 contract TokensCappedCrowdsaleImpl is Crowdsale, TokensCappedCrowdsale {
@@ -20,7 +20,7 @@ contract TokensCappedCrowdsaleImpl is Crowdsale, TokensCappedCrowdsale {
     }
 
     function createTokenContract() internal returns(MintableToken) {
-        return new CAToken();
+        return new MintableToken();
     }
 
 }

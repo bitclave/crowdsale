@@ -13,16 +13,11 @@ contract TokensCappedCrowdsale is Crowdsale {
         tokensCap = _tokensCap;
     }
 
-    // overriding Crowdsale#buyTokens to add validPurchase check after buying
-    function buyTokens(address beneficiary) public payable {
-        super.buyTokens(beneficiary);
-        require(validPurchase());
-    }
-
     // overriding Crowdsale#validPurchase to add extra tokens cap logic
     // @return true if investors can buy at the moment
     function validPurchase() internal constant returns (bool) {
-        bool withinCap = token.totalSupply() <= tokensCap;
+        uint256 tokens = token.totalSupply() + msg.value.mul(rate);
+        bool withinCap = tokens <= tokensCap;
         return super.validPurchase() && withinCap;
     }
 

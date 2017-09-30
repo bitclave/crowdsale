@@ -22,7 +22,7 @@ const tokenDecimals = 18;
 const tokensForOwner = 1 * (10**9);
 const tokensForPresale = 150 * (10**6);
 
-contract('Crowdsale', function ([_, wallet, bitClaveWallet, presaleWallet, wallet2, wallet3]) {
+contract('CATCrowdsale', function ([_, wallet, bitClaveWallet, presaleWallet, wallet2, wallet3]) {
 
     const startTime = latestTime() + duration.weeks(1);
     const endTime = startTime + duration.weeks(1);
@@ -79,6 +79,7 @@ contract('Crowdsale', function ([_, wallet, bitClaveWallet, presaleWallet, walle
 
         {
             // Create 700 CAT for wallet2
+            console.log('zzz')
             await crowdsale.buyTokens(wallet2, {from: wallet2, value: 700});
 
             const event = crowdsale.TokenPurchase({_from:web3.eth.coinbase}, {fromBlock: 'latest'});
