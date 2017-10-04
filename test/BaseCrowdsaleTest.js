@@ -2,21 +2,23 @@
 
 import {duration, increaseTimeTo} from "./helpers/increaseTime";
 import latestTime from "./helpers/latestTime";
+import EVMThrow from './helpers/EVMThrow';
 
-const BigNumber = web3.BigNumber;
+const should = require('chai')
+    .use(require('chai-as-promised'))
+    .use(require('chai-bignumber')(web3.BigNumber))
+    .should();
 
 const Crowdsale = artifacts.require('./CATCrowdsale.sol');
 const Token = artifacts.require('./CAToken.sol');
 
 const tokenDecimals = 18;
-const tokensForOwner = 1 * (10 ** 9);
-const tokensForPresale = 150 * (10 ** 6);
 const rate = 10 ** tokenDecimals;
 
 contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wallet1, wallet2, wallet3]) {
     const startTime = latestTime() + duration.weeks(1);
     const endTime = startTime + duration.days(70);
-    const afterEndTime = endTime + duration.seconds(1);
+
     let crowdsale;
     let tokens;
     let usedTokensSupply = 0;
@@ -42,26 +44,20 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
     });
 
     it("crowdsale state Not started", async function () {
-        try {
-            crowdsale.setPaused(false);
-            await buyTokens(wallet1, {from: wallet1, value: 1});
-            assert.fail("Wrong in contract state!");
-        } catch (e) {
-            // ignore
-        }
-        crowdsale.setPaused(true);
+        await crowdsale.setPaused(false);
+        await buyTokens(wallet1, {from: wallet1, value: 1}).should
+            .be
+            .rejectedWith(EVMThrow);
+        await crowdsale.setPaused(true);
     });
 
     it("crowdsale on pause (4 hours)", async function () {
         await mintTokens(wallet1, 1 * rate);
         await validateBalance(wallet1, 1 * rate);
 
-        try {
-            await buyTokens(wallet1, {from: wallet1, value: 1});
-            assert.fail("token not in state Pause!");
-        } catch (e) {
-            // ignore
-        }
+        await buyTokens(wallet1, {from: wallet1, value: 1}).should
+            .be
+            .rejectedWith(EVMThrow);
 
         await increaseTimeTo(startTime);
         await crowdsale.setPaused(false);
@@ -71,12 +67,9 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
     });
 
     it("mint token only owner", async function () {
-        try {
-            await mintTokens(wallet2, 5 * rate, {from: wallet1});
-            assert.fail("mint token can call not only owner!!!");
-        } catch (e) {
-            // ignore
-        }
+        await mintTokens(wallet2, 5 * rate, {from: wallet1}).should
+            .be
+            .rejectedWith(EVMThrow);
     });
 
     it("transfer tkn to address, which already buyed tkn via site payed BTC/QTUM", async function () {
@@ -131,12 +124,9 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
 
     it("finish crowdsale by time", async function () {
         await increaseTimeTo(startTime + duration.days(75));
-        try {
-            await buyTokens(wallet3, {from: wallet3, value: 10});
-            assert.fail("crowdsale not finished!!!!");
-        } catch (e) {
-            // ignore
-        }
+        await buyTokens(wallet3, {from: wallet3, value: 10}).should
+            .be
+            .rejectedWith(EVMThrow);
     });
 
     it("change owner to Bitclave wallet", async function () {
@@ -145,12 +135,10 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
 
         await crowdsale.transferOwnership(bitClaveWallet);
 
-        try {
-            await mintTokens(wallet1, 1 * rate);
-            assert.fail("owner not changed!");
-        } catch (e) {
-            // ignore
-        }
+        await mintTokens(wallet1, 1 * rate).should
+            .be
+            .rejectedWith(EVMThrow);
+
         await mintTokens(wallet1, 1 * rate, {from: bitClaveWallet});
         await validateBalance(wallet1, 4 * rate); //4 - with last count of tokens.
     });
@@ -169,27 +157,19 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
         const cap = (await crowdsale.CAP.call()).toNumber();
         residueTokens = cap - totalSupply;
 
-        try {
-            await crowdsale.finalize();
-            assert.fail("incorrect owner of Crowdsale!");
-        } catch (e) {
-            // ignore
-        }
+        await crowdsale.finalize().should
+            .be
+            .rejectedWith(EVMThrow);
 
         await crowdsale.finalize({from: bitClaveWallet});
-        try {
-            await mintTokens(wallet1, 1 * rate);
-            assert.fail("incorrect state NOT FINALIZED and owner!");
-        } catch (e) {
-            // ignore
-        }
 
-        try {
-            await mintTokens(wallet1, 1 * rate, {from: bitClaveWallet});
-            assert.fail("incorrect state NOT FINALIZED!");
-        } catch (e) {
-            // ignore
-        }
+        await mintTokens(wallet1, 1 * rate).should
+            .be
+            .rejectedWith(EVMThrow);
+
+        await mintTokens(wallet1, 1 * rate, {from: bitClaveWallet}).should
+            .be
+            .rejectedWith(EVMThrow);
     });
 
     it("validate returned funds to main wallet", async function () {
@@ -204,7 +184,13 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
     };
 
     let buyTokens = async function (wallet, params) {
-        await crowdsale.buyTokens(wallet, params);
+        if (params.from === wallet || !params.from) {
+            params.from = wallet;
+            await crowdsale.sendTransaction(params);
+        } else {
+            await crowdsale.buyTokens(wallet, params);
+        }
+
         usedTokensSupply += params.value * rate;
     };
 

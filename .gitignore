@@ -2,5 +2,4 @@ build/
 node_modules/
 .DS_Store
 .node-xmlhttprequest-sync-*
-*.bat
 .idea/*
