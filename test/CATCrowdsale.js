@@ -31,6 +31,7 @@ contract('CATCrowdsale', function ([_, wallet, bitClaveWallet, presaleWallet, wa
     it('creates 1 billion of tokens for its creator', async function () {
 
         await increaseTimeTo(startTime);
+        await advanceBlock()
 
         const crowdsale = await Crowdsale.new(startTime, endTime, 10**tokenDecimals, wallet, bitClaveWallet, presaleWallet);
         const token = Token.at(await crowdsale.token.call());

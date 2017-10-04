@@ -15,9 +15,6 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
     uint256 public constant BITCLAVE_AMOUNT = 1 * (10**9) * (10**DECIMALS);    // 1B CAT
     uint256 public constant PRESALE_AMOUNT = 150 * (10**6) * (10**DECIMALS);   // 150M CAT
 
-    //uint256 public startTime;
-    //uint256 public endTime;
-
     // Events
     event TokenMint(address indexed beneficiary, uint256 amount);
     event WalletChange(address wallet);
