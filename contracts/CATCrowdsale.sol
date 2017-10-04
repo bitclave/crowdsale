@@ -39,13 +39,11 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
     }
 
     // Overrided methods
-
     function createTokenContract() internal returns(MintableToken) {
         return new CAToken();
     }
 
     // Owner methods
-
     function mintTokens(address beneficiary, uint256 tokens) public onlyOwner {
         require(beneficiary != 0x0);
         require(token.totalSupply() + tokens <= tokensCap); // TokensCappedCrowdsale
