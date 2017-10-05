@@ -34,13 +34,13 @@ contract BonusCrowdsale is Crowdsale, Ownable {
         uint256 bonus = computeBonus(usdValue);
 
         uint256 oldRate = rate;
-        rate = rate * BONUS_COEFF / (BONUS_COEFF + bonus);
+        rate = rate.mul(BONUS_COEFF.add(bonus)).div(BONUS_COEFF);
         super.buyTokens(beneficiary);
         rate = oldRate;
     }
 
     function computeBonus(uint256 usdValue) public returns(uint256) {
-        return computeAmountBonus(usdValue) + computeTimeBonus();
+        return computeAmountBonus(usdValue).add(computeTimeBonus());
     }
 
     function computeTimeBonus() public returns(uint256) {
