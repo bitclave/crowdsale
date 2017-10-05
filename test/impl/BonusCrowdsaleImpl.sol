@@ -14,9 +14,8 @@ contract BonusCrowdsaleImpl is Crowdsale, BonusCrowdsale {
         address _wallet
     )
         Crowdsale(_startTime, _endTime, _rate, _wallet)
-        BonusCrowdsale(_startTime + 4 hours)
+        BonusCrowdsale()
     {
-        setBonusesEnabled(true);
 
         BONUS_TIMES = [
             1 hours,
