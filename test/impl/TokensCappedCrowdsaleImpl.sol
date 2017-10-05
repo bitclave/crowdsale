@@ -4,7 +4,7 @@ import "zeppelin-solidity/contracts/crowdsale/Crowdsale.sol";
 import "zeppelin-solidity/contracts/token/MintableToken.sol";
 import "../../contracts/TokensCappedCrowdsale.sol";
 
-// Crowdsale capped by number of minted tokens
+
 contract TokensCappedCrowdsaleImpl is Crowdsale, TokensCappedCrowdsale {
 
     function TokensCappedCrowdsaleImpl(
@@ -17,10 +17,6 @@ contract TokensCappedCrowdsaleImpl is Crowdsale, TokensCappedCrowdsale {
         Crowdsale(_startTime, _endTime, _rate, _wallet)
         TokensCappedCrowdsale(_tokensCap)
     {
-    }
-
-    function createTokenContract() internal returns(MintableToken) {
-        return new MintableToken();
     }
 
 }

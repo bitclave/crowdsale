@@ -4,16 +4,18 @@ import "zeppelin-solidity/contracts/ownership/Ownable.sol";
 import "zeppelin-solidity/contracts/crowdsale/FinalizableCrowdsale.sol";
 import "./TokensCappedCrowdsale.sol";
 import "./PausableCrowdsale.sol";
+import "./BonusCrowdsale.sol";
 import "./CAToken.sol";
 
 
-contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsale.CAP), PausableCrowdsale(true) {
+contract CATCrowdsale is  FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsale.CAP), PausableCrowdsale(true), BonusCrowdsale {
 
     // Constants
     uint256 public constant DECIMALS = 18;
-    uint256 public constant CAP = 2 * (10**9) * (10**DECIMALS);                // 2B CAT
-    uint256 public constant BITCLAVE_AMOUNT = 1 * (10**9) * (10**DECIMALS);    // 1B CAT
-    uint256 public constant PRESALE_AMOUNT = 150 * (10**6) * (10**DECIMALS);   // 150M CAT
+    uint256 public constant CAP = 2 * (10**9) * (10**DECIMALS);              // 2B CAT
+    uint256 public constant BITCLAVE_AMOUNT = 1 * (10**9) * (10**DECIMALS);  // 1B CAT
+    uint256 public constant PRESALE_AMOUNT = 150 * (10**6) * (10**DECIMALS); // 150M CAT
+    uint256 public constant PREPAUSED_PERIOD = 4 hours;                      // For whitelist mining
 
     // Events
     event TokenMint(address indexed beneficiary, uint256 amount);
@@ -30,7 +32,74 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
         address _presaleWallet
     )
         Crowdsale(_startTime, _endTime, _rate, _wallet)
+        BonusCrowdsale(_startTime + PREPAUSED_PERIOD)
     {
+        BONUS_TIMES = [
+            1 hours,
+            1 days,
+            7 days,
+            30 days,
+            45 days,
+            60 days
+        ];
+
+        BONUS_TIMES_VALUES = [
+            150,
+            100,
+            70,
+            50,
+            20,
+            0
+        ];
+
+        BONUS_AMOUNTS = [
+            900000,
+            600000,
+            450000,
+            300000,
+            225000,
+            150000,
+            90000,
+            60000,
+            45000,
+            30000,
+            22500,
+            15000,
+            9000,
+            6000,
+            4500,
+            3000,
+            2100,
+            1500,
+            900,
+            600,
+            300
+        ];
+
+        BONUS_AMOUNTS_VALUES = [
+            130,
+            120,
+            110,
+            100,
+            90,
+            80,
+            70,
+            65,
+            60,
+            55,
+            50,
+            45,
+            40,
+            35,
+            30,
+            25,
+            20,
+            15,
+            10,
+            5,
+            0
+        ];
+
         mintTokens(_bitClaveWallet, BITCLAVE_AMOUNT);
         mintTokens(_presaleWallet, PRESALE_AMOUNT);
     }
@@ -54,6 +123,7 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
             mintTokens(wallet, tokensCap - token.totalSupply());
         }
         super.finalize();
+        token.transferOwnership(owner);
     }
 
     function setWallet(address _wallet) external onlyOwner {

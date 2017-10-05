@@ -24,19 +24,23 @@ const tokensForPresale = 150 * (10**6);
 
 contract('CATCrowdsale', function ([_, wallet, bitClaveWallet, presaleWallet, wallet2, wallet3]) {
 
-    const startTime = latestTime() + duration.weeks(1);
-    const endTime = startTime + duration.weeks(1);
-    const afterEndTime = endTime + duration.seconds(1);
+    before(async function() {
+        //Advance to the next block to correctly read time in the solidity "now" function interpreted by testrpc
+        await advanceBlock()
+    })
+
+    beforeEach(async function () {
+        this.startTime = latestTime() + duration.weeks(1);
+        this.endTime =   this.startTime + duration.weeks(1);
+        this.afterEndTime = this.endTime + duration.seconds(1)
+    })
 
     it('creates 1 billion of tokens for its creator', async function () {
 
-        await increaseTimeTo(startTime);
-        await advanceBlock()
-
-        const crowdsale = await Crowdsale.new(startTime, endTime, 10**tokenDecimals, wallet, bitClaveWallet, presaleWallet);
+        const crowdsale = await Crowdsale.new(this.startTime, this.endTime, 10**tokenDecimals, wallet, bitClaveWallet, presaleWallet);
         const token = Token.at(await crowdsale.token.call());
         await crowdsale.setPaused(false);
-
+        
         const event = crowdsale.TokenMint({_from:web3.eth.coinbase}, {fromBlock: 0});
         const promise = new Promise(resolve => event.watch(async function(error, response) {
 
@@ -74,13 +78,12 @@ contract('CATCrowdsale', function ([_, wallet, bitClaveWallet, presaleWallet, wa
 
     it('creates tokens when creator asks', async function () {
 
-        const crowdsale = await Crowdsale.new(startTime, endTime, 10**tokenDecimals, wallet, bitClaveWallet, presaleWallet);
+        const crowdsale = await Crowdsale.new(this.startTime, this.endTime, 10**tokenDecimals, wallet, bitClaveWallet, presaleWallet);
         const token = Token.at(await crowdsale.token.call());
         await crowdsale.setPaused(false);
 
         {
             // Create 700 CAT for wallet2
-            console.log('zzz')
             await crowdsale.buyTokens(wallet2, {from: wallet2, value: 700});
 
             const event = crowdsale.TokenPurchase({_from:web3.eth.coinbase}, {fromBlock: 'latest'});
@@ -107,7 +110,6 @@ contract('CATCrowdsale', function ([_, wallet, bitClaveWallet, presaleWallet, wa
 
         {
             // Create 800 CAT for wallet2
-            console.log('zzz')
             await crowdsale.buyTokens(wallet3, {from: wallet3, value: 800});
 
             const event = crowdsale.TokenPurchase({_from:web3.eth.coinbase}, {fromBlock: 'latest'});

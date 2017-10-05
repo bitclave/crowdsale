@@ -4,87 +4,46 @@ import "zeppelin-solidity/contracts/crowdsale/Crowdsale.sol";
 import "zeppelin-solidity/contracts/ownership/Ownable.sol";
 
 
-// Crowdsale which can be paused by owner at any time
+// Crowdsale which can give time and amount bonuses
 contract BonusCrowdsale is Crowdsale, Ownable {
 
-    uint[] public TIMES;
-    uint[] public TIMES_BONUSES;
-    uint[] public AMOUNTS;
-    uint[] public AMOUNTS_BONUSES;
-    uint public constant BONUS_KOEF = 1000;
+    uint[] public BONUS_TIMES;
+    uint[] public BONUS_TIMES_VALUES;
+    uint[] public BONUS_AMOUNTS;
+    uint[] public BONUS_AMOUNTS_VALUES;
+    uint public constant BONUS_KOEF = 1000; // Values should be 10x percents, values from 0 to 1000
+
+    bool public bonusesEnabled = false;
+    uint256 public bonusStartTime;
+
+    event BonusesEnabled();
+
+    function setBonusesEnabled(bool _bonusesEnabled) public onlyOwner {
+        require(bonusesEnabled != _bonusesEnabled);
+        bonusesEnabled = _bonusesEnabled;
+        if (bonusesEnabled) {
+            BonusesEnabled();
+        }
+    }
+
+    function setBonusStartTime(uint256 _bonusStartTime) public onlyOwner {
+        bonusStartTime = _bonusStartTime;
+    }
     
-    function BonusCrowdsale() {
-        TIMES = [
-            1 hours,
-            1 days,
-            7 days,
-            30 days,
-            45 days,
-            60 days
-        ];
-
-        TIMES_BONUSES = [
-            150,
-            100,
-            70,
-            50,
-            20,
-            0
-        ];
-
-        AMOUNTS = [
-            900000,
-            600000,
-            450000,
-            300000,
-            225000,
-            150000,
-            90000,
-            60000,
-            45000,
-            30000,
-            22500,
-            15000,
-            9000,
-            6000,
-            4500,
-            3000,
-            2100,
-            1500,
-            900,
-            600,
-            300
-        ];
-
-        AMOUNTS_BONUSES = [
-            130,
-            120,
-            110,
-            100,
-            90,
-            80,
-            70,
-            65,
-            60,
-            55,
-            50,
-            45,
-            40,
-            35,
-            30,
-            25,
-            20,
-            15,
-            10,
-            5,
-            0
-        ];
-
-        require(TIMES.length == TIMES_BONUSES.length);
-        require(AMOUNTS.length == AMOUNTS_BONUSES.length);
+    function BonusCrowdsale(uint256 _bonusStartTime) {
+        bonusStartTime = _bonusStartTime;
     }
 
     function buyTokens(address beneficiary) public payable {
+        if (!bonusesEnabled) {
+            super.buyTokens(beneficiary);
+            return;
+        }
+
+        require(BONUS_TIMES.length > 0 || BONUS_AMOUNTS.length > 0);
+        require(BONUS_TIMES.length == BONUS_TIMES_VALUES.length);
+        require(BONUS_AMOUNTS.length == BONUS_AMOUNTS_VALUES.length);
+
         uint256 bonus = computeBonus(msg.value.mul(oldRate));
 
         uint256 oldRate = rate;
@@ -94,15 +53,20 @@ contract BonusCrowdsale is Crowdsale, Ownable {
     }
 
     function computeBonus(uint256 usdValue) public returns(uint256) {
-        return computeAmountBonus(usdValue) + computeTimeBonus();
+        if (bonusesEnabled) {
+            return computeAmountBonus(usdValue) + computeTimeBonus();
+        }
+        return 0;
     }
 
     function computeTimeBonus() public returns(uint256) {
-        require(now >= startTime);
+        require(now >= bonusStartTime);
 
-        for (uint i = 0; i < TIMES.length; i++) {
-            if (now - startTime <= TIMES[i]) {
-                return TIMES_BONUSES[i];
+        if (bonusesEnabled) {
+            for (uint i = 0; i < BONUS_TIMES.length; i++) {
+                if (now - bonusStartTime <= BONUS_TIMES[i]) {
+                    return BONUS_TIMES_VALUES[i];
+                }
             }
         }
 
@@ -110,9 +74,11 @@ contract BonusCrowdsale is Crowdsale, Ownable {
     }
 
     function computeAmountBonus(uint256 usdValue) public returns(uint256) {
-        for (uint i = 0; i < AMOUNTS.length; i++) {
-            if (usdValue >= AMOUNTS[i]) {
-                return AMOUNTS_BONUSES[i];
+        if (bonusesEnabled) {
+            for (uint i = 0; i < BONUS_AMOUNTS.length; i++) {
+                if (usdValue >= BONUS_AMOUNTS[i]) {
+                    return BONUS_AMOUNTS_VALUES[i];
+                }
             }
         }
 
