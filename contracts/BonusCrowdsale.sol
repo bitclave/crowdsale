@@ -7,21 +7,31 @@ import "zeppelin-solidity/contracts/ownership/Ownable.sol";
 // Crowdsale which can give time and amount bonuses
 contract BonusCrowdsale is Crowdsale, Ownable {
 
+    // Constants (some kind of)
     uint[] public BONUS_TIMES;
     uint[] public BONUS_TIMES_VALUES;
     uint[] public BONUS_AMOUNTS;
     uint[] public BONUS_AMOUNTS_VALUES;
     uint public constant BONUS_COEFF = 1000; // Values should be 10x percents, values from 0 to 1000
     
-    function BonusCrowdsale() {
+    // Members
+    uint public tokenPrice;
+    uint public tokenDecimals;
+
+    // Constructor
+    function BonusCrowdsale(uint256 _tokenPrice, uint256 _tokenDecimals) {
+        tokenPrice = _tokenPrice;
+        tokenDecimals = _tokenDecimals;
     }
 
+    // Overrided buyTokens method to provide bonus by changing and restoring rate variable
     function buyTokens(address beneficiary) public payable {
         require(BONUS_TIMES.length > 0 || BONUS_AMOUNTS.length > 0);
         require(BONUS_TIMES.length == BONUS_TIMES_VALUES.length);
         require(BONUS_AMOUNTS.length == BONUS_AMOUNTS_VALUES.length);
 
-        uint256 bonus = computeBonus(msg.value.mul(rate));
+        uint256 usdValue = msg.value.mul(rate).mul(tokenPrice).div(100).div(10 ** tokenDecimals); 
+        uint256 bonus = computeBonus(usdValue);
 
         uint256 oldRate = rate;
         rate = rate * BONUS_COEFF / (BONUS_COEFF + bonus);
@@ -37,7 +47,7 @@ contract BonusCrowdsale is Crowdsale, Ownable {
         require(now >= startTime);
 
         for (uint i = 0; i < BONUS_TIMES.length; i++) {
-            if (startTime <= BONUS_TIMES[i]) {
+            if (now - startTime <= BONUS_TIMES[i]) {
                 return BONUS_TIMES_VALUES[i];
             }
         }

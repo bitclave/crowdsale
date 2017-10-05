@@ -8,13 +8,14 @@ import "./BonusCrowdsale.sol";
 import "./CAToken.sol";
 
 
-contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsale.CAP), PausableCrowdsale(true), BonusCrowdsale {
+contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsale.CAP), PausableCrowdsale(true), BonusCrowdsale(CATCrowdsale.TOKEN_USDCENT_PRICE, CATCrowdsale.DECIMALS) {
 
     // Constants
     uint256 public constant DECIMALS = 18;
     uint256 public constant CAP = 2 * (10**9) * (10**DECIMALS);              // 2B CAT
     uint256 public constant BITCLAVE_AMOUNT = 1 * (10**9) * (10**DECIMALS);  // 1B CAT
     uint256 public constant PRESALE_AMOUNT = 150 * (10**6) * (10**DECIMALS); // 150M CAT
+    uint256 public constant TOKEN_USDCENT_PRICE = 7;                         // $0.07
 
     // Events
     event TokenMint(address indexed beneficiary, uint256 amount);
@@ -31,7 +32,6 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
         address _presaleWallet
     )
         Crowdsale(_startTime, _endTime, _rate, _wallet)
-        BonusCrowdsale()
     {
         BONUS_TIMES = [
             1 hours,
