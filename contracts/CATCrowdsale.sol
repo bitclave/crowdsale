@@ -17,6 +17,9 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
     uint256 public constant PRESALE_AMOUNT = 150 * (10**6) * (10**DECIMALS); // 150M CAT
     uint256 public constant TOKEN_USDCENT_PRICE = 7;                         // $0.07
 
+    // Variables
+    address public remainingTokensWallet;
+
     // Events
     event TokenMint(address indexed beneficiary, uint256 amount);
     event WalletChange(address wallet);
@@ -28,11 +31,14 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
         uint256 _endTime,
         uint256 _rate,
         address _wallet,
+        address _remainingTokensWallet,
         address _bitClaveWallet,
         address _presaleWallet
     )
         Crowdsale(_startTime, _endTime, _rate, _wallet)
     {
+        remainingTokensWallet = _remainingTokensWallet;
+
         BONUS_TIMES = [
             1 hours,
             1 days,
@@ -119,7 +125,7 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
 
     function finalize() onlyOwner public {
         if (token.totalSupply() < tokensCap) {
-            mintTokens(wallet, tokensCap - token.totalSupply());
+            mintTokens(remainingTokensWallet, tokensCap - token.totalSupply());
         }
         super.finalize();
         token.transferOwnership(owner);

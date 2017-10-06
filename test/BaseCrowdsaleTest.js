@@ -32,7 +32,7 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
     let bonusCoefficient = new BigNumber(0);
 
     it("initialize Crowdsale", async function () {
-        crowdsale = await Crowdsale.new(startTime, endTime, rate, wallet,
+        crowdsale = await Crowdsale.new(startTime, endTime, rate, wallet, wallet,
             bitClaveWallet, presaleWallet);
         tokens = Token.at(await crowdsale.token.call());
         bonusCoefficient = await crowdsale.BONUS_COEFF.call();

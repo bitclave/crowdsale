@@ -37,7 +37,7 @@ contract('CATCrowdsale', function ([_, wallet, bitClaveWallet, presaleWallet, wa
 
     it('creates 1 billion of tokens for its creator', async function () {
 
-        const crowdsale = await Crowdsale.new(this.startTime, this.endTime, 10**tokenDecimals, wallet, bitClaveWallet, presaleWallet);
+        const crowdsale = await Crowdsale.new(this.startTime, this.endTime, 10**tokenDecimals, wallet, wallet, bitClaveWallet, presaleWallet);
         const token = Token.at(await crowdsale.token.call());
         await crowdsale.setPaused(false);
 
@@ -78,7 +78,7 @@ contract('CATCrowdsale', function ([_, wallet, bitClaveWallet, presaleWallet, wa
 
     it('creates tokens when creator asks', async function () {
 
-        const crowdsale = await Crowdsale.new(this.startTime, this.endTime, 10**tokenDecimals, wallet, bitClaveWallet, presaleWallet);
+        const crowdsale = await Crowdsale.new(this.startTime, this.endTime, 10**tokenDecimals, wallet, wallet, bitClaveWallet, presaleWallet);
         const token = Token.at(await crowdsale.token.call());
         await crowdsale.setPaused(false);
 
