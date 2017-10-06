@@ -20,6 +20,10 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
     // Variables
     address public remainingTokensWallet;
 
+    function setRemainingTokensWallet(address _remainingTokensWallet) public onlyOwner {
+        remainingTokensWallet = _remainingTokensWallet;
+    }
+
     // Events
     event TokenMint(address indexed beneficiary, uint256 amount);
     event WalletChange(address wallet);
