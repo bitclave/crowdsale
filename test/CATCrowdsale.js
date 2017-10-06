@@ -40,7 +40,7 @@ contract('CATCrowdsale', function ([_, wallet, bitClaveWallet, presaleWallet, wa
         const crowdsale = await Crowdsale.new(this.startTime, this.endTime, 10**tokenDecimals, wallet, bitClaveWallet, presaleWallet);
         const token = Token.at(await crowdsale.token.call());
         await crowdsale.setPaused(false);
-        
+
         const event = crowdsale.TokenMint({_from:web3.eth.coinbase}, {fromBlock: 0});
         const promise = new Promise(resolve => event.watch(async function(error, response) {
 
