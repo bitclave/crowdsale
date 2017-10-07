@@ -14,11 +14,11 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
     uint256 public constant DECIMALS = 18;
     uint256 public constant CAP = 2 * (10**9) * (10**DECIMALS);              // 2B CAT
     uint256 public constant BITCLAVE_AMOUNT = 1 * (10**9) * (10**DECIMALS);  // 1B CAT
-    uint256 public constant PRESALE_AMOUNT = 150 * (10**6) * (10**DECIMALS); // 150M CAT
     uint256 public constant TOKEN_USDCENT_PRICE = 7;                         // $0.07
 
     // Variables
     address public remainingTokensWallet;
+    address public presaleWallet;
 
     function setRemainingTokensWallet(address _remainingTokensWallet) public onlyOwner {
         remainingTokensWallet = _remainingTokensWallet;
@@ -42,6 +42,7 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
         Crowdsale(_startTime, _endTime, _rate, _wallet)
     {
         remainingTokensWallet = _remainingTokensWallet;
+        presaleWallet = _presaleWallet;
 
         BONUS_TIMES = [
             1 hours,
@@ -110,7 +111,6 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
         ];
 
         mintTokens(_bitClaveWallet, BITCLAVE_AMOUNT);
-        mintTokens(_presaleWallet, PRESALE_AMOUNT);
     }
 
     // Overrided methods
@@ -119,6 +119,12 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
     }
 
     // Owner methods
+
+    function mintPresaleTokens(uint256 tokens) public onlyOwner {
+        mintTokens(presaleWallet, tokens);
+        presaleWallet = 0;
+    }
+
     function mintTokens(address beneficiary, uint256 tokens) public onlyOwner {
         require(beneficiary != 0x0);
         require(token.totalSupply() + tokens <= tokensCap); // TokensCappedCrowdsale
