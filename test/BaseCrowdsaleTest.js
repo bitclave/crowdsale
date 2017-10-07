@@ -15,36 +15,55 @@ const Crowdsale = artifacts.require('./CATCrowdsale.sol');
 const Token = artifacts.require('./CAToken.sol');
 
 const tokenDecimals = 18;
-const rate = new BigNumber(10).pow(tokenDecimals);  // rate - 1(ETH) to 1(CAT)
-
+const tokenDecimalsIncrease = new BigNumber(10).pow(tokenDecimals);
+const catForEth = new BigNumber(3000);
+const rate = tokenDecimalsIncrease.mul(catForEth);  // rate - 1(ETH) to 3000(CAT)
 contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, walletForMint,
                                       walletInvestorFirst, walletInvestorSecond]) {
 
-    const startTime = latestTime() + duration.weeks(1);
-    const endTime = startTime + duration.days(60);
-    const afterWhitelistTime = startTime + duration.hours(4);
-    const afterEndTime = endTime + duration.seconds(1);
+    let startTime;
+    let endTime;
+    let afterWhitelistTime;
+    let afterEndTime;
 
     let crowdsale;
     let tokens;
     let usedTokensSupply = new BigNumber(0);
     let residueTokens = new BigNumber(0);
     let bonusCoefficient = new BigNumber(0);
+    let catToUsedPrice = new BigNumber(0);
+
+    before(async function () {
+        //Advance to the next block to correctly read time in the solidity "now" function interpreted by testrpc
+        await advanceBlock();
+        const initialTime = latestTime();
+        const diff = new Date("2017-10-25").getTime() - initialTime;
+
+        await increaseTimeTo(initialTime + diff);
+
+        startTime = latestTime() + duration.weeks(1);
+        endTime = startTime + duration.days(60);
+        afterWhitelistTime = startTime + duration.hours(4);
+        afterEndTime = endTime + duration.seconds(1);
+    });
+
+    beforeEach(async function () {
+
+    });
 
     it("initialize Crowdsale", async function () {
-        crowdsale = await Crowdsale.new(startTime, endTime, rate, wallet, wallet,
-            bitClaveWallet, presaleWallet);
+        crowdsale = await Crowdsale.new(startTime, endTime, rate, wallet, wallet, bitClaveWallet,
+            presaleWallet);
         tokens = Token.at(await crowdsale.token.call());
         bonusCoefficient = await crowdsale.BONUS_COEFF.call();
+        catToUsedPrice = await crowdsale.TOKEN_USDCENT_PRICE.call();
 
         console.log(_, wallet, bitClaveWallet, presaleWallet, await crowdsale.token.call());
     });
 
     it("funds on wallets", async function () {
         let bitclaveWalletTokens = await crowdsale.BITCLAVE_AMOUNT.call();
-        let presaleWalletTokens = await crowdsale.PRESALE_AMOUNT.call();
         await validateBalance(bitClaveWallet, bitclaveWalletTokens);
-        await validateBalance(presaleWallet, presaleWalletTokens);
     });
 
     it("crowdsale state Paused", async function () {
@@ -52,31 +71,34 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
     });
 
     it("mint token only owner", async function () {
-        await mintTokens(walletForMint, 5 * rate, {from: walletInvestorFirst})
-            .should
+        await mintTokens(walletForMint, 5, {from: walletInvestorFirst}).should
             .be
             .rejectedWith(EVMThrow);
-        await mintTokensWithValidateBalance(walletForMint, 5 * rate);
+        await mintTokensWithValidateBalance(walletForMint, 5);
     });
 
     it("crowdsale state Not started for regular clients", async function () {
-        await crowdsale.setPaused(false);
+        await crowdsale.unpause();
         await buyTokens(walletInvestorFirst, {from: walletInvestorFirst, value: 1}).should
             .be
             .rejectedWith(EVMThrow);
-        await crowdsale.setPaused(true);
+        await crowdsale.pause();
     });
 
     it("crowdsale running for whitelist (start before at 4 hours)", async function () {
-        await mintTokensWithValidateBalance(walletForMint, 1 * rate);
+        await mintTokensWithValidateBalance(walletForMint, 1);
 
         await buyTokens(walletInvestorFirst, {from: walletInvestorFirst, value: 1}).should
             .be
             .rejectedWith(EVMThrow);
     });
 
+    it("send tokens to investor from presale", async function () {
+        await mintPresaleTokensWithValidateBalance(1000);
+    });
+
     it("transfer tkn to address, which already buyed tkn via site payed BTC/QTUM", async function () {
-        await mintTokensWithValidateBalance(walletForMint, 5 * rate);
+        await mintTokensWithValidateBalance(walletForMint, 5);
     });
 
     it("start buying", async function () {
@@ -89,18 +111,42 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
     });
 
     it("crowdsale running for regular clients. (after 4 hours. without pause)", async function () {
-        await crowdsale.setPaused(false);
+        await crowdsale.unpause();
         /**
          * discount of one hour ignored. because regular investor buying tokens after four hours from start.
          * first day = discount 10%
          *
-         * 38500 == 2695$ - bonus 2%
-         * 1300000 == 91000$ - bonus 7%
-         * 8600 == 602$ - bonus 0.5%
+         * 12 ~ 2695$ - bonus 2%
+         * 433 ~ 91000$ - bonus 7%
+         * 3 ~ 602$ - bonus 0.5%
          *
          */
         await regularInvestorBuyTokens(walletInvestorFirst, duration.hours(1),
-            [38500, 1300000, 8600], [20, 70, 5], [100, 100, 100]);
+            [12, 433, 3], [20, 70, 5], [100, 100, 100]);
+    });
+
+    it("send tokens to investor from presale (transfer already disabled)", async function () {
+        await mintPresaleTokensWithValidateBalance(1000).should
+            .be
+            .rejectedWith(EVMThrow);
+    });
+
+    it("try transfer tokens from investor wallet", async function () {
+        await tokens.transfer(walletInvestorSecond, 1, {from: walletInvestorFirst}).should
+            .be
+            .rejectedWith(EVMThrow);
+    });
+
+    it("unpause tokens and try transfer tokens from investor wallet", async function () {
+        await crowdsale.unpauseTokens();
+
+        await tokens.transfer(walletInvestorSecond, 1, {from: walletInvestorFirst});
+
+        await crowdsale.pauseTokens();
+
+        await tokens.transfer(walletInvestorSecond, 1, {from: walletInvestorFirst}).should
+            .be
+            .rejectedWith(EVMThrow);
     });
 
     it("buy tokens at 2 - 7 days", async function () {
@@ -108,22 +154,21 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
         /*
          * between 2 and 7 days = discount 7%
          *
-         * 2.427.600 == 169.932$ - bonus 8%
-         * 1.356.6000 == 949.620$ - bonus 13%
-         * 30.000 == 2100$ - bonus 2%
+         * 809 ~ 169.932$ - bonus 8%
+         * 4522 ~ 949.620$ - bonus 13%
+         * 10 ~ 2100$ - bonus 2%
          *
          */
         await regularInvestorBuyTokens(walletInvestorFirst, duration.days(1),
-            [2427600, 13566000, 30000], [80, 130, 20], [70, 70, 70]);
+            [809, 4522, 10], [80, 130, 20], [70, 70, 70]);
     });
 
     it("contract on a pause in the sales process", async function () {
-        await crowdsale.setPaused(true);
-        await buyTokens(walletInvestorFirst, {from: walletInvestorFirst, value: 10})
-            .should
+        await crowdsale.pause();
+        await buyTokens(walletInvestorFirst, {from: walletInvestorFirst, value: 10}).should
             .be
             .rejectedWith(EVMThrow);
-        await crowdsale.setPaused(false);
+        await crowdsale.unpause();
     });
 
     it("buy tokens at 8 - 30 days", async function () {
@@ -131,28 +176,27 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
         /*
          * between 8 and 30 days = discount 5%
          *
-         * 128.610 ~ 9.000$ - bonus 4%
-         * 214.350 == 15.000$ - bonus 4.5%
-         * 857.400 == 60.000$ - bonus 6.5%
+         * 43 ~ 9.000$ - bonus 4%
+         * 73 ~ 15.000$ - bonus 4.5%
+         * 287 ~ 60.000$ - bonus 6.5%
          *
          */
         await regularInvestorBuyTokens(walletInvestorFirst, duration.days(5),
-            [128610, 214350, 857400], [40, 45, 65], [50, 50, 50]);
+            [43, 73, 287], [40, 45, 65], [50, 50, 50]);
     });
-
 
     it("buy tokens at 31 - 45 days", async function () {
         await increaseTimeTo(afterWhitelistTime + duration.days(31));
         /*
          * between 31 and 45 days = discount 2%
          *
-         * 4.280 ~ 300$ - bonus 0%
-         * 4.287.000 == 300.000$ - bonus 10%
-         * 21.435 == 1.500$ - bonus 1.5%
+         * 2 ~ 300$ - bonus 0%
+         * 1429 ~ 300.000$ - bonus 10%
+         * 8 ~ 1.500$ - bonus 1.5%
          *
          */
         await regularInvestorBuyTokens(walletInvestorFirst, duration.days(4),
-            [4280, 4287000, 21435], [0, 100, 15], [20, 20, 20]);
+            [2, 1429, 8], [0, 100, 15], [20, 20, 20]);
     });
 
     it("buy tokens at 45 - 60 days", async function () {
@@ -160,13 +204,13 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
         /*
          * between 45 and 60 days = discount 0%
          *
-         * 6.430.500 ~ 450135 - bonus 11%
-         * 8.574 == 600$ - bonus 0.5%
-         * 12.861 == 900$ - bonus 1%
+         * 2.143 ~ 450135 - bonus 11%
+         * 3 ~ 600$ - bonus 0.5%
+         * 5 ~ 900$ - bonus 1%
          *
          */
         await regularInvestorBuyTokens(walletInvestorFirst, duration.days(5),
-            [6430500, 8574, 12861], [110, 5, 10], [0, 0, 0]);
+            [2143, 3, 5], [110, 5, 10], [0, 0, 0]);
     });
 
     it("buy tokens at 45 - 60 days. transfer to other wallet", async function () {
@@ -177,38 +221,36 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
          */
         const investorBalance = await getBalance(walletInvestorSecond);
         const initialWalletMintBalance = await getBalance(walletForMint);
-        await buyTokens(walletForMint, {from: walletInvestorSecond, value: 10});
-        await validateBalance(walletForMint, initialWalletMintBalance.add(new BigNumber(10).mul(rate)));
+        await buyTokens(walletForMint, {from: walletInvestorSecond, value: 1});
+        await validateBalance(walletForMint, initialWalletMintBalance.add(new BigNumber(catForEth)
+            .mul(tokenDecimalsIncrease)));
+
         await validateBalance(walletInvestorSecond, investorBalance);
     });
 
     it("finish crowdsale by time", async function () {
         await increaseTimeTo(afterEndTime);
-        await buyTokens(walletInvestorSecond, {from: walletInvestorSecond, value: 10})
-            .should
+        await buyTokens(walletInvestorSecond, {from: walletInvestorSecond, value: 10}).should
             .be
             .rejectedWith(EVMThrow);
     });
 
     it("change owner to Bitclave wallet", async function () {
-        await mintTokensWithValidateBalance(walletForMint, 1 * rate);
+        await mintTokensWithValidateBalance(walletForMint, 1);
 
         await crowdsale.transferOwnership(bitClaveWallet);
 
-        await mintTokens(walletForMint, 1 * rate)
-            .should
+        await mintTokens(walletForMint, 1).should
             .be
             .rejectedWith(EVMThrow);
 
-        await mintTokensWithValidateBalance(walletForMint, 1 * rate, {from: bitClaveWallet});
+        await mintTokensWithValidateBalance(walletForMint, 1, {from: bitClaveWallet});
     });
 
     it("validate totalSupply of tokens", async function () {
         const totalSupply = await tokens.totalSupply.call();
         let bitclaveWalletTokens = await crowdsale.BITCLAVE_AMOUNT.call();
-        let presaleWalletTokens = await crowdsale.PRESALE_AMOUNT.call();
-        let fullSupply = bitclaveWalletTokens.add(presaleWalletTokens)
-            .add(usedTokensSupply);
+        let fullSupply = bitclaveWalletTokens.add(usedTokensSupply);
 
         totalSupply.should.be.bignumber.equal(fullSupply);
     });
@@ -224,11 +266,11 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
 
         await crowdsale.finalize({from: bitClaveWallet});
 
-        await mintTokens(walletForMint, 1 * rate).should
+        await mintTokens(walletForMint, 1).should
             .be
             .rejectedWith(EVMThrow);
 
-        await mintTokens(walletForMint, 1 * rate, {from: bitClaveWallet}).should
+        await mintTokens(walletForMint, 1, {from: bitClaveWallet}).should
             .be
             .rejectedWith(EVMThrow);
     });
@@ -237,12 +279,16 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
         validateBalance(wallet, residueTokens);
     });
 
+    it("try transfer tokens from investor wallet. after finalized crowdsale", async function () {
+        await tokens.transfer(walletInvestorSecond, 1, {from: walletInvestorFirst});
+    });
+
     let regularInvestorBuyTokens = async function (wallet, timeStep, etherValues, bonuses, discount) {
-        let walletInitialValue =  await getBalance(wallet);
+        let walletInitialValue = await getBalance(wallet);
         let collectedAmount = new BigNumber(0);
         const size = etherValues.length;
 
-        for(let i = 0; i < size; i++) {
+        for (let i = 0; i < size; i++) {
             await increaseTimeTo(latestTime() + timeStep);
 
             let etherAmount = new BigNumber(etherValues[i]);
@@ -297,6 +343,15 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
         const initialBalance = await getBalance(wallet);
         await mintTokens(wallet, amount, params);
         const updatedBalance = await getBalance(wallet);
+        updatedBalance.should.be.bignumber.equal(initialBalance.add(amount));
+    };
+
+    let mintPresaleTokensWithValidateBalance = async function (amount, params) {
+        const initialBalance = await getBalance(presaleWallet);
+        await crowdsale.mintPresaleTokens(amount, params);
+        usedTokensSupply = usedTokensSupply.add(amount);
+
+        const updatedBalance = await getBalance(presaleWallet);
         updatedBalance.should.be.bignumber.equal(initialBalance.add(amount));
     };
 
