@@ -120,6 +120,14 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
 
     // Owner methods
 
+    function pauseTokens() public onlyOwner {
+        CAToken(token).pause();
+    }
+
+    function unpauseTokens() public onlyOwner {
+        CAToken(token).unpause();
+    }
+
     function mintPresaleTokens(uint256 tokens) public onlyOwner {
         mintTokens(presaleWallet, tokens);
         presaleWallet = 0;
