@@ -115,7 +115,9 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
 
     // Overrided methods
     function createTokenContract() internal returns(MintableToken) {
-        return new CAToken();
+        CAToken token = new CAToken();
+        token.pause();
+        return token;
     }
 
     // Owner methods
@@ -146,6 +148,10 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
             mintTokens(remainingTokensWallet, tokensCap - token.totalSupply());
         }
         super.finalize();
+        
+        if (CAToken(token).paused()) {
+            CAToken(token).unpause();
+        }
         token.transferOwnership(owner);
     }
 
