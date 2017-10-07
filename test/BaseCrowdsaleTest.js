@@ -240,9 +240,9 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
     let regularInvestorBuyTokens = async function (wallet, timeStep, etherValues, bonuses, discount) {
         let walletInitialValue =  await getBalance(wallet);
         let collectedAmount = new BigNumber(0);
-        const count = Math.min(etherValues.length, etherValues.length);
+        const size = etherValues.length;
 
-        for(let i = 0; i < count; i++) {
+        for(let i = 0; i < size; i++) {
             await increaseTimeTo(latestTime() + timeStep);
 
             let etherAmount = new BigNumber(etherValues[i]);
