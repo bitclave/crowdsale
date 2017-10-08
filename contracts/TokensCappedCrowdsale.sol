@@ -3,7 +3,11 @@ pragma solidity ^0.4.11;
 import "zeppelin-solidity/contracts/crowdsale/Crowdsale.sol";
 
 
-// Crowdsale capped by number of minted tokens
+/**
+* @dev Parent crowdsale contract is extended with support for cap in tokens
+* Based on references from OpenZeppelin: https://github.com/OpenZeppelin/zeppelin-solidity
+* 
+*/
 contract TokensCappedCrowdsale is Crowdsale {
 
     uint256 public tokensCap;

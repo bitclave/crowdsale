@@ -15,7 +15,7 @@ const Crowdsale = artifacts.require('CATCrowdsale')
 // const Crowdsale = artifacts.require('CATCrowdsale2')
 const CAToken = artifacts.require('./CAToken.sol');
 
-contract('Crowdsale', function ([_, investor, wallet, purchaser, bitClaveWallet, presaleWallet, wallet2, wallet3, wallet4]) {
+contract('Crowdsale random tests', function ([_, investor, wallet, purchaser, bitClaveWallet, presaleWallet, wallet2, wallet3, wallet4]) {
 
   const rateCatInOneEth = 3000;
   const rateUsdInOneCat = 0.07
@@ -168,12 +168,12 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser, bitClaveWallet,
 
             let expectedTokenAmountWith_NO_Bonus = contribInWei.mul(rate);
             let expectedTokenAmountWithBonus = contribInWei.mul(rate).mul(bonusCoefficient.add(bonus)).div(bonusCoefficient);
-            console.log("1: bonus", bonus);
-            console.log("1: rate", rate);
-            console.log("1: rateWithBonus", rateWithBonus);
-            console.log("1: expectedTokenAmount", expectedTokenAmount);
-            console.log("1: expectedTokenAmountWithBonus", expectedTokenAmountWithBonus);
-            console.log("1: expectedTokenAmountWith_NO_Bonus", expectedTokenAmountWith_NO_Bonus);
+            // console.log("1: bonus", bonus);
+            // console.log("1: rate", rate);
+            // console.log("1: rateWithBonus", rateWithBonus);
+            // console.log("1: expectedTokenAmount", expectedTokenAmount);
+            // console.log("1: expectedTokenAmountWithBonus", expectedTokenAmountWithBonus);
+            // console.log("1: expectedTokenAmountWith_NO_Bonus", expectedTokenAmountWith_NO_Bonus);
 
               // Check event arguments
               response.args.beneficiary.should.equal(wallet2);
@@ -200,7 +200,7 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser, bitClaveWallet,
           let contribInEth = new BigNumber(30);
           let contribInWei = web3.toWei(contribInEth, 'ether');
           let contribInUsd = contribInEth.mul(rateCatInOneEth).mul(rateUsdInOneCat);
-          console.log("contribInUsd", contribInUsd)
+          // console.log("contribInUsd", contribInUsd)
 
           let curSupply = await token.totalSupply();
 
@@ -217,12 +217,12 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser, bitClaveWallet,
             let expectedTokenAmountWithBonus = contribInWei.mul(rate).mul(bonusCoefficient.add(bonus)).div(bonusCoefficient);
               
 
-            console.log("2: bonus", bonus);
-            console.log("2: rate", rate);
-            console.log("2: rateWithBonus", rateWithBonus);
-            console.log("2: expectedTokenAmount", expectedTokenAmount);
-            console.log("2: expectedTokenAmountWithBonus", expectedTokenAmountWithBonus);
-            console.log("2: expectedTokenAmountWith_NO_Bonus", expectedTokenAmountWith_NO_Bonus);
+            // console.log("2: bonus", bonus);
+            // console.log("2: rate", rate);
+            // console.log("2: rateWithBonus", rateWithBonus);
+            // console.log("2: expectedTokenAmount", expectedTokenAmount);
+            // console.log("2: expectedTokenAmountWithBonus", expectedTokenAmountWithBonus);
+            // console.log("2: expectedTokenAmountWith_NO_Bonus", expectedTokenAmountWith_NO_Bonus);
               
 
               // Check event arguments
@@ -267,8 +267,8 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser, bitClaveWallet,
       await this.token.finishMinting();
       await this.token.mint(investor, 100).should.be.rejectedWith(EVMThrow)
       // await this.token.mint(investor, 1000000000*10**18)
-      const totalSupply = await this.token.totalSupply();
-      console.log("totalSupply", totalSupply);
+      // const totalSupply = await this.token.totalSupply();
+      // console.log("totalSupply", totalSupply);
     })
   })
 
@@ -338,6 +338,4 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser, bitClaveWallet,
     })
 
   })
-
-
 })

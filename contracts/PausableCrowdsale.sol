@@ -4,7 +4,13 @@ import "zeppelin-solidity/contracts/crowdsale/Crowdsale.sol";
 import "zeppelin-solidity/contracts/lifecycle/Pausable.sol";
 
 
-// Crowdsale which can be paused by owner at any time
+/**
+* @dev Parent crowdsale contract extended with support for pausable crowdsale, meaning crowdsale can be paused by owner at any time
+* Based on references from OpenZeppelin: https://github.com/OpenZeppelin/zeppelin-solidity
+* 
+* While the contract is in paused state, the contributions will be rejected
+* 
+*/
 contract PausableCrowdsale is Crowdsale, Pausable {
 
     function PausableCrowdsale(bool _paused) {

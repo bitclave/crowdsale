@@ -4,6 +4,11 @@ import "zeppelin-solidity/contracts/token/MintableToken.sol";
 import "zeppelin-solidity/contracts/token/PausableToken.sol";
 
 
+/**
+* @dev Main Bitcalve CAT token ERC20 contract
+* Based on references from OpenZeppelin: https://github.com/OpenZeppelin/zeppelin-solidity
+* 
+*/
 contract CAToken is MintableToken, PausableToken {
     
     // Metadata

@@ -4,10 +4,16 @@ import "zeppelin-solidity/contracts/crowdsale/Crowdsale.sol";
 import "zeppelin-solidity/contracts/ownership/Ownable.sol";
 
 
-// Crowdsale which can give time and amount bonuses
+
+/**
+* @dev Parent crowdsale contract with support for time-based and amount based bonuses 
+* Based on references from OpenZeppelin: https://github.com/OpenZeppelin/zeppelin-solidity
+* 
+*/
 contract BonusCrowdsale is Crowdsale, Ownable {
 
-    // Constants (some kind of)
+    // Constants
+    // The following will be populated by main crowdsale contract
     uint[] public BONUS_TIMES;
     uint[] public BONUS_TIMES_VALUES;
     uint[] public BONUS_AMOUNTS;
@@ -18,13 +24,20 @@ contract BonusCrowdsale is Crowdsale, Ownable {
     uint public tokenPrice;
     uint public tokenDecimals;
 
-    // Constructor
+    /**
+    * @dev Contructor
+    * @param _tokenPrice token price in USD cents. The price is fixed
+    * @param _tokenDecimals number of digits after decimal point for CAT token
+    */
     function BonusCrowdsale(uint256 _tokenPrice, uint256 _tokenDecimals) {
         tokenPrice = _tokenPrice;
         tokenDecimals = _tokenDecimals;
     }
 
-    // Overrided buyTokens method to provide bonus by changing and restoring rate variable
+    /**
+    * @dev Overrided buyTokens method of parent Crowdsale contract  to provide bonus by changing and restoring rate variable
+    * @param beneficiary walelt of investor to receive tokens
+    */
     function buyTokens(address beneficiary) public payable {
         // Check constants consistency
         require(BONUS_TIMES.length > 0 || BONUS_AMOUNTS.length > 0);
@@ -42,10 +55,19 @@ contract BonusCrowdsale is Crowdsale, Ownable {
         rate = oldRate;
     }
 
+    /**
+    * @dev Computes overall bonus based on time of contribution and amount of contribution. 
+    * The total bonus is the sum of bonus by time and bonus by amount
+    * @return bonus percentage scaled by 10
+    */
     function computeBonus(uint256 usdValue) public constant returns(uint256) {
         return computeAmountBonus(usdValue).add(computeTimeBonus());
     }
 
+    /**
+    * @dev Computes bonus based on time of contribution relative to the beginning of crowdsale
+    * @return bonus percentage scaled by 10
+    */
     function computeTimeBonus() public constant returns(uint256) {
         require(now >= startTime);
 
@@ -58,6 +80,10 @@ contract BonusCrowdsale is Crowdsale, Ownable {
         return 0;
     }
 
+    /**
+    * @dev Computes bonus based on amount of contribution
+    * @return bonus percentage scaled by 10
+    */
     function computeAmountBonus(uint256 usdValue) public constant returns(uint256) {
         for (uint i = 0; i < BONUS_AMOUNTS.length; i++) {
             if (usdValue >= BONUS_AMOUNTS[i]) {
