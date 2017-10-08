@@ -39,11 +39,11 @@ contract BonusCrowdsale is Crowdsale, Ownable {
         rate = oldRate;
     }
 
-    function computeBonus(uint256 usdValue) public returns(uint256) {
+    function computeBonus(uint256 usdValue) public constant  returns(uint256) {
         return computeAmountBonus(usdValue).add(computeTimeBonus());
     }
 
-    function computeTimeBonus() public returns(uint256) {
+    function computeTimeBonus() public constant returns(uint256) {
         require(now >= startTime);
 
         for (uint i = 0; i < BONUS_TIMES.length; i++) {
@@ -55,7 +55,7 @@ contract BonusCrowdsale is Crowdsale, Ownable {
         return 0;
     }
 
-    function computeAmountBonus(uint256 usdValue) public returns(uint256) {
+    function computeAmountBonus(uint256 usdValue) public constant  returns(uint256) {
         for (uint i = 0; i < BONUS_AMOUNTS.length; i++) {
             if (usdValue >= BONUS_AMOUNTS[i]) {
                 return BONUS_AMOUNTS_VALUES[i];
