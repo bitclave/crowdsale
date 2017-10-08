@@ -137,6 +137,7 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
             mintTokens(remainingTokensWallet, tokensCap.sub(token.totalSupply()));
         }
         super.finalize();
+        token.finishMinting();
         
         if (CAToken(token).paused()) {
             CAToken(token).unpause();
