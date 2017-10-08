@@ -8,18 +8,17 @@ import "./BonusCrowdsale.sol";
 import "./CAToken.sol";
 
 
-contract CATCrowdsale2 is FinalizableCrowdsale, TokensCappedCrowdsale, PausableCrowdsale, BonusCrowdsale {
+contract CATCrowdsale2 is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsale2.CAP), PausableCrowdsale(true), BonusCrowdsale(CATCrowdsale2.TOKEN_USDCENT_PRICE, CATCrowdsale2.DECIMALS) {
 
     // Constants
     uint256 public constant DECIMALS = 18;
     uint256 public constant CAP = 2 * (10**9) * (10**DECIMALS);              // 2B CAT
     uint256 public constant BITCLAVE_AMOUNT = 1 * (10**9) * (10**DECIMALS);  // 1B CAT
-    uint256 public constant PRESALE_AMOUNT = 150 * (10**6) * (10**DECIMALS); // 150M CAT
     uint256 public constant TOKEN_USDCENT_PRICE = 7;                         // $0.07
-    uint256 public constant enableBonus = 0;
 
     // Variables
     address public remainingTokensWallet;
+    address public presaleWallet;
 
     function setRemainingTokensWallet(address _remainingTokensWallet) public onlyOwner {
         remainingTokensWallet = _remainingTokensWallet;
@@ -40,12 +39,10 @@ contract CATCrowdsale2 is FinalizableCrowdsale, TokensCappedCrowdsale, PausableC
         address _bitClaveWallet,
         address _presaleWallet
     )
-        TokensCappedCrowdsale(CAP)
-        PausableCrowdsale(true)
-	    BonusCrowdsale(CATCrowdsale2.TOKEN_USDCENT_PRICE, CATCrowdsale2.DECIMALS)
         Crowdsale(_startTime, _endTime, _rate, _wallet)
     {
         remainingTokensWallet = _remainingTokensWallet;
+        presaleWallet = _presaleWallet;
 
         BONUS_TIMES = [
             1 hours,
@@ -57,12 +54,12 @@ contract CATCrowdsale2 is FinalizableCrowdsale, TokensCappedCrowdsale, PausableC
         ];
 
         BONUS_TIMES_VALUES = [
-            enableBonus * 150,
-            enableBonus * 100,
-            enableBonus * 70,
-            enableBonus * 50,
-            enableBonus * 20,
-            enableBonus * 0
+            150,
+            100,
+            70,
+            50,
+            20,
+            0
         ];
 
         BONUS_AMOUNTS = [
@@ -90,43 +87,57 @@ contract CATCrowdsale2 is FinalizableCrowdsale, TokensCappedCrowdsale, PausableC
         ];
 
         BONUS_AMOUNTS_VALUES = [
-            enableBonus * 130,
-            enableBonus * 120,
-            enableBonus * 110,
-            enableBonus * 100,
-            enableBonus * 90,
-            enableBonus * 80,
-            enableBonus * 70,
-            enableBonus * 65,
-            enableBonus * 60,
-            enableBonus * 55,
-            enableBonus * 50,
-            enableBonus * 45,
-            enableBonus * 40,
-            enableBonus * 35,
-            enableBonus * 30,
-            enableBonus * 25,
-            enableBonus * 20,
-            enableBonus * 15,
-            enableBonus * 10,
-            enableBonus * 5,
+            130,
+            120,
+            110,
+            100,
+            90,
+            80,
+            70,
+            65,
+            60,
+            55,
+            50,
+            45,
+            40,
+            35,
+            30,
+            25,
+            20,
+            15,
+            10,
+            5,
             0
         ];
 
         mintTokens(_bitClaveWallet, BITCLAVE_AMOUNT);
-        mintTokens(_presaleWallet, PRESALE_AMOUNT);
     }
 
     // Overrided methods
     function createTokenContract() internal returns(MintableToken) {
-        return new CAToken();
+        CAToken token = new CAToken();
+        token.pause();
+        return token;
     }
 
-    // // Owner methods
+    // Owner methods
+
+    function pauseTokens() public onlyOwner {
+        CAToken(token).pause();
+    }
+
+    function unpauseTokens() public onlyOwner {
+        CAToken(token).unpause();
+    }
+
+    function mintPresaleTokens(uint256 tokens) public onlyOwner {
+        mintTokens(presaleWallet, tokens);
+        presaleWallet = 0;
+    }
 
     function mintTokens(address beneficiary, uint256 tokens) public onlyOwner {
         require(beneficiary != 0x0);
-        require(token.totalSupply() + tokens <= tokensCap); // TokensCappedCrowdsale
+        require(token.totalSupply().add(tokens) <= tokensCap); // TokensCappedCrowdsale
         require(/*now >= startTime &&*/ now <= endTime);    // Crowdsale (without msg.value check)
         require(!isFinalized);                              // FinalizableCrowdsale
         
@@ -136,9 +147,13 @@ contract CATCrowdsale2 is FinalizableCrowdsale, TokensCappedCrowdsale, PausableC
 
     function finalize() onlyOwner public {
         if (token.totalSupply() < tokensCap) {
-            mintTokens(remainingTokensWallet, tokensCap - token.totalSupply());
+            mintTokens(remainingTokensWallet, tokensCap.sub(token.totalSupply()));
         }
         super.finalize();
+        
+        if (CAToken(token).paused()) {
+            CAToken(token).unpause();
+        }
         token.transferOwnership(owner);
     }
 
@@ -146,16 +161,6 @@ contract CATCrowdsale2 is FinalizableCrowdsale, TokensCappedCrowdsale, PausableC
         require(_wallet != 0x0);
         wallet = _wallet;
         WalletChange(_wallet);
-    }
-
-    function pauseToken() public onlyOwner
-    {
-        Pausable(token).pause();
-    }
-
-    function unpauseToken() public onlyOwner
-    {
-        Pausable(token).unpause();
     }
 
     function setRate(uint256 _rate) external onlyOwner {
