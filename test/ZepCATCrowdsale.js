@@ -257,8 +257,12 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser, bitClaveWallet,
       await this.crowdsale.mintTokens(investor, 100).should.be.fulfilled
     })
 
-    it('should reject minitng after end', async function () {
+    it('should accept  minitng after end', async function () {
       await increaseTimeTo(this.afterEndTime)
+      await this.crowdsale.mintTokens(investor, 100).should.be.fulfilled
+    })
+    it('should reject minitng after finalized', async function () {
+      await this.crowdsale.finalize()
       await this.crowdsale.mintTokens(investor, 100).should.be.rejectedWith(EVMThrow)
     })
   })
