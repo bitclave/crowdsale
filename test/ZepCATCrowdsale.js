@@ -264,6 +264,11 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser, bitClaveWallet,
     it('should reject minitng after finalized', async function () {
       await this.crowdsale.finalize()
       await this.crowdsale.mintTokens(investor, 100).should.be.rejectedWith(EVMThrow)
+      // await this.token.finishMinting();
+      // await this.token.mint(investor, 100).should.be.rejectedWith(EVMThrow)
+      await this.token.mint(investor, 1000000000*10**18)
+      const totalSupply = await this.token.totalSupply();
+      console.log("totalSupply", totalSupply);
     })
   })
 
