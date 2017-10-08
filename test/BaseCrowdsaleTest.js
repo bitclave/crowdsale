@@ -85,8 +85,8 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
         await crowdsale.pause();
     });
 
-    it("buy tokens for test count in wallet via MetaMask", async function () {
-        await mintTokensWithValidateBalance(walletMetaMask, 1);
+    it("buy tokens for test count in wallet via MetaMask (via mintTokens)", async function () {
+        await mintTokensWithValidateBalance(walletMetaMask, 1 * tokenDecimalsIncrease);
     });
 
     it("crowdsale running for whitelist (start before at 4 hours)", async function () {
@@ -215,6 +215,14 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
          */
         await regularInvestorBuyTokens(walletInvestorFirst, duration.days(5),
             [2143, 3, 5], [110, 5, 10], [0, 0, 0]);
+    });
+
+    it("buy tokens for test count in wallet via MetaMask (via buyTokens)", async function () {
+        const initialWalletMMBalance = await getBalance(walletMetaMask);
+
+        await buyTokens(walletMetaMask, {from: walletMetaMask, value: 1});
+        await validateBalance(walletMetaMask, initialWalletMMBalance.add(new BigNumber(catForEth)
+            .mul(tokenDecimalsIncrease))); // wallet will be show 3001 tokens
     });
 
     it("buy tokens at 45 - 60 days. transfer to other wallet", async function () {
