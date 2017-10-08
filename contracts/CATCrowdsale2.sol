@@ -26,7 +26,6 @@ contract CATCrowdsale2 is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsa
 
     // Events
     event TokenMint(address indexed beneficiary, uint256 amount);
-    event WalletChange(address wallet);
     event RateChange(uint256 rate);
 
     // Constructor
@@ -160,7 +159,6 @@ contract CATCrowdsale2 is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsa
     function setWallet(address _wallet) external onlyOwner {
         require(_wallet != 0x0);
         wallet = _wallet;
-        WalletChange(_wallet);
     }
 
     function setRate(uint256 _rate) external onlyOwner {

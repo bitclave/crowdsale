@@ -15,7 +15,7 @@ contract TokensCappedCrowdsale is Crowdsale {
 
     // overriding Crowdsale#validPurchase to add extra tokens cap logic
     // @return true if investors can buy at the moment
-    function validPurchase() internal constant returns (bool) {
+    function validPurchase() internal constant returns(bool) {
         uint256 tokens = token.totalSupply().add(msg.value.mul(rate));
         bool withinCap = tokens <= tokensCap;
         return super.validPurchase() && withinCap;
@@ -23,7 +23,7 @@ contract TokensCappedCrowdsale is Crowdsale {
 
     // overriding Crowdsale#hasEnded to add tokens cap logic
     // @return true if crowdsale event has ended
-    function hasEnded() public constant returns (bool) {
+    function hasEnded() public constant returns(bool) {
         bool capReached = token.totalSupply() >= tokensCap;
         return super.hasEnded() || capReached;
     }

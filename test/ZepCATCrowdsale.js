@@ -33,7 +33,7 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser, bitClaveWallet,
 
   beforeEach(async function () {
     this.startTime = latestTime() + duration.weeks(1);
-    this.endTime =   this.startTime + duration.days(60);
+    this.endTime = this.startTime + duration.days(60);
     this.afterEndTime = this.endTime + duration.seconds(1)
 
     this.crowdsale = await Crowdsale.new(this.startTime, this.endTime, rate, wallet, wallet4, bitClaveWallet, presaleWallet)
