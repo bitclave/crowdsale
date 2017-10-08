@@ -11,21 +11,20 @@ const should = require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should()
 
-// const Crowdsale = artifacts.require('CATCrowdsale')
-const Crowdsale = artifacts.require('CATCrowdsale2')
-// const MintableToken = artifacts.require('MintableToken')
+const Crowdsale = artifacts.require('CATCrowdsale')
+// const Crowdsale = artifacts.require('CATCrowdsale2')
 const CAToken = artifacts.require('./CAToken.sol');
 
 contract('Crowdsale', function ([_, investor, wallet, purchaser, bitClaveWallet, presaleWallet, wallet2, wallet3, wallet4]) {
 
-  const rate = new BigNumber(1000)
+  const rateCatInOneEth = 3000;
+  const rateUsdInOneCat = 0.07
+  const rate = new BigNumber(rateCatInOneEth)
   const value = ether(42)
 
   const tokenDecimals = 18;
-  const tokensForOwner = 1 * (10**9);
-  const tokensForPresale = 150 * (10**6);
-
-  const expectedTokenAmount = rate.mul(value)
+  const tokensForOwner = new BigNumber(1 * (10**9));
+  const tokensForPresale = new BigNumber(150 * (10**6));
 
   before(async function() {
     //Advance to the next block to correctly read time in the solidity "now" function interpreted by testrpc
@@ -34,55 +33,56 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser, bitClaveWallet,
 
   beforeEach(async function () {
     this.startTime = latestTime() + duration.weeks(1);
-    this.endTime =   this.startTime + duration.weeks(1);
+    this.endTime =   this.startTime + duration.days(60);
     this.afterEndTime = this.endTime + duration.seconds(1)
 
     this.crowdsale = await Crowdsale.new(this.startTime, this.endTime, rate, wallet, wallet4, bitClaveWallet, presaleWallet)
-    //await this.crowdsale.setPaused(false);
+    //await this.crowdsale.unpause();
 
     this.token = CAToken.at(await this.crowdsale.token())
+
+    await this.crowdsale.mintPresaleTokens(tokensForPresale* (10**tokenDecimals));
+    // console.log("after mintPresaleTokens");
 
     // let tknowner = await this.token.owner();
     // console.log("tknowner=", tknowner);
     // console.log("conrtact=", this.crowdsale.address);
 
-    await this.crowdsale.pauseToken();
-
     let tknPaused = await this.token.paused();
     // console.log("tknPaused", tknPaused);
+    if (!tknPaused)
+    {
+      await this.crowdsale.pauseTokens();
+
+    }
+    tknPaused = await this.token.paused();
     tknPaused.should.equal(true);
   })
 
   describe('contract creation stress test', function () {
     it ('create contract', async function()
     {
-        await this.crowdsale.setPaused(false);
-        // console.log("here4");
+        await this.crowdsale.unpause();
     })
     it ('create contract', async function()
     {
-        await this.crowdsale.setPaused(false);
-        // console.log("here4");
+        await this.crowdsale.unpause();
     })
     it ('create contract', async function()
     {
-        await this.crowdsale.setPaused(false);
-        // console.log("here4");
+        await this.crowdsale.unpause();
     })
     it ('create contract', async function()
     {
-        await this.crowdsale.setPaused(false);
-        // console.log("here4");
+        await this.crowdsale.unpause();
     })
     it ('create contract', async function()
     {
-        await this.crowdsale.setPaused(false);
-        // console.log("here4");
+        await this.crowdsale.unpause();
     })
     it ('create contract', async function()
     {
-        await this.crowdsale.setPaused(false);
-        // console.log("here4");
+        await this.crowdsale.unpause();
     })
   })
 
@@ -105,32 +105,30 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser, bitClaveWallet,
       let crowdsale = this.crowdsale;
       let token = this.token;
       
-      await crowdsale.setPaused(false);
-      // console.log("here4");
-      
+      await crowdsale.unpause();
 
       const event = crowdsale.TokenMint({_from:web3.eth.coinbase}, {fromBlock: 0});
       const promise = new Promise(resolve => event.watch(async function(error, response) {
 
           // Check supply
           const totalSupply = await token.totalSupply();
-          totalSupply.should.be.bignumber.equal((tokensForOwner + tokensForPresale) * (10**tokenDecimals));
+          totalSupply.should.be.bignumber.equal((tokensForOwner.add(tokensForPresale)).mul(10**tokenDecimals));
 
           if (response.args.beneficiary == bitClaveWallet) {
               // Check event arguments
-              response.args.amount.should.be.bignumber.equal(tokensForOwner * (10**tokenDecimals));
+              response.args.amount.should.be.bignumber.equal(tokensForOwner.mul(10**tokenDecimals));
 
               // Check balace
               const balance = await token.balanceOf(bitClaveWallet);
-              balance.should.be.bignumber.equal(tokensForOwner * (10**tokenDecimals));
+              balance.should.be.bignumber.equal(tokensForOwner.mul(10**tokenDecimals));
           }
           else if (response.args.beneficiary == presaleWallet) {
               // Check event arguments
-              response.args.amount.should.be.bignumber.equal(tokensForPresale * (10**tokenDecimals));
+              response.args.amount.should.be.bignumber.equal(tokensForPresale.mul(10**tokenDecimals));
 
               // Check balace
               const balance = await token.balanceOf(presaleWallet);
-              balance.should.be.bignumber.equal(tokensForPresale * (10**tokenDecimals));
+              balance.should.be.bignumber.equal(tokensForPresale.mul(10**tokenDecimals));
 
               event.stopWatching();
               resolve();
@@ -146,37 +144,50 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser, bitClaveWallet,
 
   it('creates tokens when creator asks', async function () {
 
-      // console.log("here4a");
       let crowdsale = this.crowdsale;
       let token = this.token;
 
-      await crowdsale.setPaused(false);
-      // console.log("here4b");
+      await crowdsale.unpause();
+      await increaseTimeTo(this.startTime + duration.hours(25))
 
       {
-          await increaseTimeTo(this.startTime + duration.hours(5))
+          let contribInEth = new BigNumber(0.25);
+          let contribInWei = web3.toWei(contribInEth, 'ether');
+          let contribInUsd = contribInEth.mul(rateCatInOneEth).mul(rateUsdInOneCat);
 
-          // Create 700 CAT for wallet2
-          let tx = await crowdsale.buyTokens(wallet2, {from: wallet2, value: web3.toWei('700', 'ether')/rate});
-      // console.log("here4c");
-      //     let tx = await crowdsale.buyTokens(investor, {from: purchaser, value: 700});
-      // console.log("here4d");
-          
+          let tx = await crowdsale.buyTokens(wallet2, {from: wallet2, value: contribInWei});
           // console.log(tx);
+
           const event = crowdsale.TokenPurchase({_from:web3.eth.coinbase}, {fromBlock: 'latest'});
           const promise = new Promise(resolve => event.watch(async function(error, response) {
 
+            let bonusCoefficient = await crowdsale.BONUS_COEFF.call();
+            let bonus = await crowdsale.computeBonus(contribInUsd);
+            let rateWithBonus = rate.mul(bonusCoefficient.add(bonus)).div(bonusCoefficient);
+            let expectedTokenAmount = new BigNumber(contribInWei.mul(rateWithBonus));
+
+            let expectedTokenAmountWith_NO_Bonus = contribInWei.mul(rate);
+            let expectedTokenAmountWithBonus = contribInWei.mul(rate).mul(bonusCoefficient.add(bonus)).div(bonusCoefficient);
+            console.log("1: bonus", bonus);
+            console.log("1: rate", rate);
+            console.log("1: rateWithBonus", rateWithBonus);
+            console.log("1: expectedTokenAmount", expectedTokenAmount);
+            console.log("1: expectedTokenAmountWithBonus", expectedTokenAmountWithBonus);
+            console.log("1: expectedTokenAmountWith_NO_Bonus", expectedTokenAmountWith_NO_Bonus);
+
               // Check event arguments
               response.args.beneficiary.should.equal(wallet2);
-              response.args.amount.should.be.bignumber.equal(700 * (10**tokenDecimals));
+              response.args.amount.should.be.bignumber.equal(expectedTokenAmount);
 
               // Check balance
               const balance = await token.balanceOf(wallet2);
-              balance.should.be.bignumber.equal(700 * (10**tokenDecimals));
+              balance.should.be.bignumber.equal(expectedTokenAmount);
 
               // Check supply
               const totalSupply = await token.totalSupply();
-              totalSupply.should.be.bignumber.equal((tokensForOwner + tokensForPresale + 700) * (10**tokenDecimals));
+              totalSupply.should.be.bignumber.equal(
+                ((tokensForOwner.add(tokensForPresale)).mul(10**tokenDecimals)).add(expectedTokenAmount)
+              );
 
               event.stopWatching();
               resolve();
@@ -186,24 +197,46 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser, bitClaveWallet,
       }
 
       {
-          // Create 800 CAT for wallet2
-          // console.log('zzz')
-          await crowdsale.buyTokens(wallet3, {from: wallet3, value: web3.toWei('800', 'ether')/rate});
+          let contribInEth = new BigNumber(30);
+          let contribInWei = web3.toWei(contribInEth, 'ether');
+          let contribInUsd = contribInEth.mul(rateCatInOneEth).mul(rateUsdInOneCat);
+          console.log("contribInUsd", contribInUsd)
+
+          let curSupply = await token.totalSupply();
+
+          await crowdsale.buyTokens(wallet3, {from: wallet3, value: contribInWei});
 
           const event = crowdsale.TokenPurchase({_from:web3.eth.coinbase}, {fromBlock: 'latest'});
           const promise = new Promise(resolve => event.watch(async function(error, response) {
+            let bonusCoefficient = await crowdsale.BONUS_COEFF.call();
+            let bonus = await crowdsale.computeBonus(contribInUsd);
+            let rateWithBonus = rate.mul(bonusCoefficient.add(bonus)).div(bonusCoefficient);
+            let expectedTokenAmount = new BigNumber(contribInWei.mul(rateWithBonus));
+
+            let expectedTokenAmountWith_NO_Bonus = contribInWei.mul(rate);
+            let expectedTokenAmountWithBonus = contribInWei.mul(rate).mul(bonusCoefficient.add(bonus)).div(bonusCoefficient);
+              
+
+            console.log("2: bonus", bonus);
+            console.log("2: rate", rate);
+            console.log("2: rateWithBonus", rateWithBonus);
+            console.log("2: expectedTokenAmount", expectedTokenAmount);
+            console.log("2: expectedTokenAmountWithBonus", expectedTokenAmountWithBonus);
+            console.log("2: expectedTokenAmountWith_NO_Bonus", expectedTokenAmountWith_NO_Bonus);
+              
 
               // Check event arguments
               response.args.beneficiary.should.equal(wallet3);
-              response.args.amount.should.be.bignumber.equal(800 * (10**tokenDecimals));
+              response.args.amount.should.be.bignumber.equal(expectedTokenAmount);
 
               // Check balance
               const balance = await token.balanceOf(wallet3);
-              balance.should.be.bignumber.equal(800 * (10**tokenDecimals));
+              balance.should.be.bignumber.equal(expectedTokenAmount, "checking expectedTokenAmount");
 
               // Check supply
               const totalSupply = await token.totalSupply();
-              totalSupply.should.be.bignumber.equal((tokensForOwner + tokensForPresale + 700 + 800) * (10**tokenDecimals));
+              
+              totalSupply.should.be.bignumber.equal(curSupply.add(expectedTokenAmount), "checking total supply");
 
               event.stopWatching();
               resolve();
@@ -240,16 +273,16 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser, bitClaveWallet,
 
     it('should reject payments while paused', async function () {
       await increaseTimeTo(this.startTime + duration.hours(5))
-      // await this.crowdsale.setPaused(true);
+      // await this.crowdsale.pause();
 
       await this.crowdsale.send(value).should.be.rejectedWith(EVMThrow)
       await this.crowdsale.buyTokens(investor, {from: purchaser, value: value}).should.be.rejectedWith(EVMThrow)
     })
 
     it('should accept payments after unpaused', async function () {
-      await increaseTimeTo(this.startTime + duration.hours(5))
+      await increaseTimeTo(this.startTime + duration.days(50))
       
-      await this.crowdsale.setPaused(false);
+      await this.crowdsale.unpause();
       let p = await this.crowdsale.paused();
       // console.log("paused=", p);
       // let chk1 = await this.crowdsale.checkPurchase1();
@@ -269,7 +302,7 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser, bitClaveWallet,
 
     it('should reject transfer for paused token', async function () {
       await increaseTimeTo(this.startTime + duration.hours(5))
-      await this.crowdsale.setPaused(false);
+      await this.crowdsale.unpause();
       await this.crowdsale.buyTokens(investor, {value: value, from: purchaser}).should.be.fulfilled
       
       // let balance = await this.token.balanceOf(investor);
@@ -279,13 +312,13 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser, bitClaveWallet,
 
     it('should allow transfer for unpaused token', async function () {
       await increaseTimeTo(this.startTime + duration.hours(6))
-      await this.crowdsale.setPaused(false);
+      await this.crowdsale.unpause();
       await this.crowdsale.buyTokens(investor, {value: value, from: purchaser}).should.be.fulfilled
 
       // let balance = await this.token.balanceOf(investor);
       // console.log("balance", balance);
 
-      await this.crowdsale.unpauseToken();
+      await this.crowdsale.unpauseTokens();
       await this.token.transfer(wallet3, 5, {from: investor}).should.be.fulfilled
     })
 
@@ -297,82 +330,5 @@ contract('Crowdsale', function ([_, investor, wallet, purchaser, bitClaveWallet,
 
   })
 
-  // describe('high-level purchase', function () {
-
-  //   beforeEach(async function() {
-  //     await increaseTimeTo(this.startTime)
-  //   })
-
-  //   it('should log purchase', async function () {
-  //     const {logs} = await this.crowdsale.sendTransaction({value: value, from: investor})
-
-  //     const event = logs.find(e => e.event === 'TokenPurchase')
-
-  //     should.exist(event)
-  //     event.args.purchaser.should.equal(investor)
-  //     event.args.beneficiary.should.equal(investor)
-  //     event.args.value.should.be.bignumber.equal(value)
-  //     event.args.amount.should.be.bignumber.equal(expectedTokenAmount)
-  //   })
-
-  //   it('should increase totalSupply', async function () {
-  //     await this.crowdsale.send(value)
-  //     const totalSupply = await this.token.totalSupply()
-  //     totalSupply.should.be.bignumber.equal(expectedTokenAmount)
-  //   })
-
-  //   it('should assign tokens to sender', async function () {
-  //     await this.crowdsale.sendTransaction({value: value, from: investor})
-  //     let balance = await this.token.balanceOf(investor);
-  //     balance.should.be.bignumber.equal(expectedTokenAmount)
-  //   })
-
-  //   it('should forward funds to wallet', async function () {
-  //     const pre = web3.eth.getBalance(wallet)
-  //     await this.crowdsale.sendTransaction({value, from: investor})
-  //     const post = web3.eth.getBalance(wallet)
-  //     post.minus(pre).should.be.bignumber.equal(value)
-  //   })
-
-  // })
-
-//   describe('low-level purchase', function () {
-
-//     beforeEach(async function() {
-//       await increaseTimeTo(this.startTime)
-//     })
-
-//     it('should log purchase', async function () {
-//       const {logs} = await this.crowdsale.buyTokens(investor, {value: value, from: purchaser})
-
-//       const event = logs.find(e => e.event === 'TokenPurchase')
-
-//       should.exist(event)
-//       event.args.purchaser.should.equal(purchaser)
-//       event.args.beneficiary.should.equal(investor)
-//       event.args.value.should.be.bignumber.equal(value)
-//       event.args.amount.should.be.bignumber.equal(expectedTokenAmount)
-//     })
-
-//     it('should increase totalSupply', async function () {
-//       await this.crowdsale.buyTokens(investor, {value, from: purchaser})
-//       const totalSupply = await this.token.totalSupply()
-//       totalSupply.should.be.bignumber.equal(expectedTokenAmount)
-//     })
-
-//     it('should assign tokens to beneficiary', async function () {
-//       await this.crowdsale.buyTokens(investor, {value, from: purchaser})
-//       const balance = await this.token.balanceOf(investor)
-//       balance.should.be.bignumber.equal(expectedTokenAmount)
-//     })
-
-//     it('should forward funds to wallet', async function () {
-//       const pre = web3.eth.getBalance(wallet)
-//       await this.crowdsale.buyTokens(investor, {value, from: purchaser})
-//       const post = web3.eth.getBalance(wallet)
-//       post.minus(pre).should.be.bignumber.equal(value)
-//     })
-
-//   })
 
 })
