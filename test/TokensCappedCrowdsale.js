@@ -19,13 +19,15 @@ const Token = artifacts.require('zeppelin-solidity/contracts/token/MintableToken
 
 contract('TokensCappedCrowdsale', function ([_, wallet, wallet2, wallet3]) {
 
-    const startTime = latestTime() + duration.weeks(1);
-    const endTime = startTime + duration.weeks(1);
-    const afterEndTime = endTime + duration.seconds(1);
 
     it('fails to create too many tokens', async function () {
 
         await advanceBlock();
+        
+        const startTime = latestTime() + duration.weeks(1);
+        const endTime = startTime + duration.weeks(1);
+        const afterEndTime = endTime + duration.seconds(1);
+
         await increaseTimeTo(startTime);
 
         const crowdsale = await Crowdsale.new(startTime, endTime, 1, wallet, 1000);
