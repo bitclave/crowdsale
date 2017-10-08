@@ -14,10 +14,8 @@ import {increaseTimeTo, duration} from './helpers/increaseTime';
 import latestTime from './helpers/latestTime';
 import EVMThrow from './helpers/EVMThrow';
 
-const Crowdsale = artifacts.require('./TokensCappedCrowdsaleImpl.sol');
-const Token = artifacts.require('./MintableToken.sol');
-
-const tokenDecimals = 18;
+const Crowdsale = artifacts.require('./impl/TokensCappedCrowdsaleImpl.sol');
+const Token = artifacts.require('zeppelin-solidity/contracts/token/MintableToken.sol');
 
 contract('TokensCappedCrowdsale', function ([_, wallet, wallet2, wallet3]) {
 
@@ -25,32 +23,43 @@ contract('TokensCappedCrowdsale', function ([_, wallet, wallet2, wallet3]) {
     const endTime = startTime + duration.weeks(1);
     const afterEndTime = endTime + duration.seconds(1);
 
-    it('fails to create to many tokens', async function () {
+    it('fails to create too many tokens', async function () {
 
+        await advanceBlock();
         await increaseTimeTo(startTime);
 
-        const crowdsale = await Crowdsale.new(startTime, endTime, 10**tokenDecimals, wallet, 1000 * (10**tokenDecimals));
+        const crowdsale = await Crowdsale.new(startTime, endTime, 1, wallet, 1000);
         const token = Token.at(await crowdsale.token.call());
 
-        // Fails to create too many tokens
-        await crowdsale.buyTokens(wallet2, {from: wallet2, value: 1500}).should.be.rejectedWith(EVMThrow);
-        const totalSupply = await token.totalSupply();
-        totalSupply.should.be.bignumber.equal(0);
-        const hasEnded = await crowdsale.hasEnded.call();
-        hasEnded.should.be.false;
+        {
+            // Fails to create too many tokens
+            await crowdsale.buyTokens(wallet2, {from: wallet2, value: 1500}).should.be.rejectedWith(EVMThrow);
+            const totalSupply = await token.totalSupply.call();
+            totalSupply.should.be.bignumber.equal(0);
+            const hasEnded = await crowdsale.hasEnded.call();
+            hasEnded.should.be.false;
+        }
 
-        // Create tokens to fill the cap
-        //await crowdsale.buyTokens2(wallet2, {from: wallet2, value: 1000});
-        //const totalSupply = await token.totalSupply();
-        //totalSupply.should.be.bignumber.equal(1000 * (10**tokenDecimals));
-        //const hasEnded = await crowdsale.hasEnded.call();
-        //hasEnded.should.be.bignumber.equal(true);
+        {
+            // Create 300 tokens
+            await crowdsale.buyTokens(wallet2, {from: wallet2, value: 700});
+            const totalSupply = await token.totalSupply.call();
+            totalSupply.should.be.bignumber.equal(700);
+            const hasEnded = await crowdsale.hasEnded.call();
+            hasEnded.should.be.false;
+        }
+
+        {
+            // Create 700 tokens to fill the cap
+            await crowdsale.buyTokens(wallet2, {from: wallet2, value: 300});
+            const totalSupply = await token.totalSupply.call();
+            totalSupply.should.be.bignumber.equal(1000);
+            const hasEnded = await crowdsale.hasEnded.call();
+            hasEnded.should.be.true;
+        }
 
         // Fails to create one more token
-        //await crowdsale.buyTokens(wallet2, {from: wallet2, value: 1}).should.be.rejectedWith(EVMThrow);
-
-        // // Fails to overflow uint256 type
-        // await token.createTokens(wallet2, new BigNumber(2)**256 - 1).should.be.rejectedWith(EVMThrow);
+        await crowdsale.buyTokens(wallet2, {from: wallet2, value: 1}).should.be.rejectedWith(EVMThrow);
     })
 
 })

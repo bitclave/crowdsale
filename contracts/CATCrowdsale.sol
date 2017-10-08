@@ -20,13 +20,24 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
     address public remainingTokensWallet;
     address public presaleWallet;
 
-    function setRemainingTokensWallet(address _remainingTokensWallet) public onlyOwner {
+    function setRate(uint256 _rate) external onlyOwner {
+        require(_rate != 0x0);
+        rate = _rate;
+        RateChange(_rate);
+    }
+
+    function setWallet(address _wallet) external onlyOwner {
+        require(_wallet != 0x0);
+        wallet = _wallet;
+    }
+
+    function setRemainingTokensWallet(address _remainingTokensWallet) external onlyOwner {
+        require(_remainingTokensWallet != 0x0);
         remainingTokensWallet = _remainingTokensWallet;
     }
 
     // Events
     event TokenMint(address indexed beneficiary, uint256 amount);
-    event WalletChange(address wallet);
     event RateChange(uint256 rate);
 
     // Constructor
@@ -114,10 +125,24 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
     }
 
     // Overrided methods
+
     function createTokenContract() internal returns(MintableToken) {
         CAToken token = new CAToken();
         token.pause();
         return token;
+    }
+
+    function finalize() public onlyOwner {
+        if (token.totalSupply() < tokensCap) {
+            mintTokens(remainingTokensWallet, tokensCap.sub(token.totalSupply()));
+        }
+        super.finalize();
+        token.finishMinting();
+        
+        if (CAToken(token).paused()) {
+            CAToken(token).unpause();
+        }
+        token.transferOwnership(owner);
     }
 
     // Owner methods
@@ -138,34 +163,10 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
     function mintTokens(address beneficiary, uint256 tokens) public onlyOwner {
         require(beneficiary != 0x0);
         require(token.totalSupply().add(tokens) <= tokensCap); // TokensCappedCrowdsale
-        require(!isFinalized);                              // FinalizableCrowdsale
+        require(!isFinalized);                                 // FinalizableCrowdsale
         
         token.mint(beneficiary, tokens);
         TokenMint(beneficiary, tokens);
-    }
-
-    function finalize() onlyOwner public {
-        if (token.totalSupply() < tokensCap) {
-            mintTokens(remainingTokensWallet, tokensCap.sub(token.totalSupply()));
-        }
-        super.finalize();
-        
-        if (CAToken(token).paused()) {
-            CAToken(token).unpause();
-        }
-        token.transferOwnership(owner);
-    }
-
-    function setWallet(address _wallet) external onlyOwner {
-        require(_wallet != 0x0);
-        wallet = _wallet;
-        WalletChange(_wallet);
-    }
-
-    function setRate(uint256 _rate) external onlyOwner {
-        require(_rate != 0x0);
-        rate = _rate;
-        RateChange(_rate);
     }
 
 }
