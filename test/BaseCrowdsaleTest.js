@@ -19,7 +19,7 @@ const tokenDecimalsIncrease = new BigNumber(10).pow(tokenDecimals);
 const catForEth = new BigNumber(3000);
 const rate = tokenDecimalsIncrease.mul(catForEth);  // rate - 1(ETH) to 3000(CAT)
 contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, walletForMint,
-                                      walletInvestorFirst, walletInvestorSecond]) {
+                                      walletInvestorFirst, walletInvestorSecond, walletMetaMask]) {
 
     let startTime;
     let endTime;
@@ -58,7 +58,7 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
         bonusCoefficient = await crowdsale.BONUS_COEFF.call();
         catToUsedPrice = await crowdsale.TOKEN_USDCENT_PRICE.call();
 
-        console.log(_, wallet, bitClaveWallet, presaleWallet, await crowdsale.token.call());
+        console.log(_, wallet, bitClaveWallet, presaleWallet, walletMetaMask, await crowdsale.token.call());
     });
 
     it("funds on wallets", async function () {
@@ -83,6 +83,10 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
             .be
             .rejectedWith(EVMThrow);
         await crowdsale.pause();
+    });
+
+    it("buy tokens for test count in wallet via MetaMask", async function () {
+        await mintTokensWithValidateBalance(walletMetaMask, 1);
     });
 
     it("crowdsale running for whitelist (start before at 4 hours)", async function () {
@@ -238,6 +242,9 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
     it("change owner to Bitclave wallet", async function () {
         await mintTokensWithValidateBalance(walletForMint, 1);
 
+        const owner = await tokens.owner();
+        owner.should.equal(crowdsale.address);
+
         await crowdsale.transferOwnership(bitClaveWallet);
 
         await mintTokens(walletForMint, 1).should
@@ -281,6 +288,11 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
 
     it("try transfer tokens from investor wallet. after finalized crowdsale", async function () {
         await tokens.transfer(walletInvestorSecond, 1, {from: walletInvestorFirst});
+    });
+
+    it("is bitClaveWallet owner of CATToken", async function () {
+        const owner = await tokens.owner();
+        owner.should.equal(bitClaveWallet);
     });
 
     let regularInvestorBuyTokens = async function (wallet, timeStep, etherValues, bonuses, discount) {
