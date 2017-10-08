@@ -38,7 +38,7 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
         //Advance to the next block to correctly read time in the solidity "now" function interpreted by testrpc
         await advanceBlock();
         const initialTime = latestTime();
-        const diff = new Date("2017-10-25").getTime() - initialTime;
+        const diff = 0;//new Date("2017-10-25").getTime() - initialTime;
 
         await increaseTimeTo(initialTime + diff);
 
