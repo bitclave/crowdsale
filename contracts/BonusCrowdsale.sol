@@ -26,13 +26,16 @@ contract BonusCrowdsale is Crowdsale, Ownable {
 
     // Overrided buyTokens method to provide bonus by changing and restoring rate variable
     function buyTokens(address beneficiary) public payable {
+        // Check constants consistency
         require(BONUS_TIMES.length > 0 || BONUS_AMOUNTS.length > 0);
         require(BONUS_TIMES.length == BONUS_TIMES_VALUES.length);
         require(BONUS_AMOUNTS.length == BONUS_AMOUNTS_VALUES.length);
 
+        // Compute bonus
         uint256 usdValue = msg.value.mul(rate).mul(tokenPrice).div(100).div(10 ** tokenDecimals); 
         uint256 bonus = computeBonus(usdValue);
 
+        // Apply bonus by adjusting and restoring rate member
         uint256 oldRate = rate;
         rate = rate.mul(BONUS_COEFF.add(bonus)).div(BONUS_COEFF);
         super.buyTokens(beneficiary);

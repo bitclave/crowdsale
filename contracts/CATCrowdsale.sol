@@ -133,6 +133,7 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
     }
 
     function finalize() public onlyOwner {
+        // Mint tokens up to CAP and finalize tokens
         if (token.totalSupply() < tokensCap) {
             mintTokens(remainingTokensWallet, tokensCap.sub(token.totalSupply()));
         }
@@ -155,11 +156,13 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
         CAToken(token).unpause();
     }
 
+    // Mint tokens saled on presale
     function mintPresaleTokens(uint256 tokens) public onlyOwner {
         mintTokens(presaleWallet, tokens);
         presaleWallet = 0;
     }
 
+    // Mint tokens, purchased with BTC/LTC/QTUM
     function mintTokens(address beneficiary, uint256 tokens) public onlyOwner {
         require(beneficiary != 0x0);
         require(token.totalSupply().add(tokens) <= tokensCap); // TokensCappedCrowdsale
