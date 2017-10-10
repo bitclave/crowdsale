@@ -37,7 +37,7 @@ contract('BonusCrowdsale', function ([_, wallet, wallet2, wallet3]) {
         const BONUS_TIMES_length = 6;
 
         for (var i = 1; i < BONUS_TIMES_length; i++) {
-            await increaseTimeTo(startTime + (await crowdsale.BONUS_TIMES.call(i)).toNumber() - 60);
+            await increaseTimeTo(startTime + ((await crowdsale.BONUS_TIMES.call(i)).toNumber() + (await crowdsale.BONUS_TIMES.call(i-1)).toNumber())/2);
 
             var balance = await token.balanceOf.call(wallet2);
             balance.should.be.bignumber.equal(0);
