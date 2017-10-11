@@ -27,8 +27,6 @@ contract('BonusCrowdsale', function ([_, wallet, wallet2, wallet3]) {
         const endTime = startTime + duration.weeks(10);
         const afterEndTime = endTime + duration.seconds(1);
 
-        await increaseTimeTo(startTime);
-
         const rate = 5000;
         const value = 30;
         const crowdsale = await Crowdsale.new(startTime, endTime, rate, wallet);
