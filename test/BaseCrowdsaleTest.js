@@ -53,6 +53,72 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
         bonusCoefficient = await crowdsale.BONUS_COEFF.call();
         catToUsedPrice = await crowdsale.TOKEN_USDCENT_PRICE.call();
 
+        await crowdsale.setBONUS_TIMES([ // Seconds
+            duration.hours(1),
+            duration.days(1),
+            duration.days(7),
+            duration.days(30),
+            duration.days(45),
+            duration.days(60)
+        ]);
+
+        await crowdsale.setBONUS_TIMES_VALUES([ // 10x percents
+            150,
+            100,
+            70,
+            50,
+            20,
+            0
+        ]);
+
+        await crowdsale.setBONUS_AMOUNTS([ // USD
+            900000,
+            600000,
+            450000,
+            300000,
+            225000,
+            150000,
+            90000,
+            60000,
+            45000,
+            30000,
+            22500,
+            15000,
+            9000,
+            6000,
+            4500,
+            3000,
+            2100,
+            1500,
+            900,
+            600,
+            300
+        ]);
+
+        await crowdsale.setBONUS_AMOUNTS_VALUES([ // 10x percents
+            130,
+            120,
+            110,
+            100,
+            90,
+            80,
+            70,
+            65,
+            60,
+            55,
+            50,
+            45,
+            40,
+            35,
+            30,
+            25,
+            20,
+            15,
+            10,
+            5,
+            0
+        ])
+
         console.log(_, wallet, bitClaveWallet, presaleWallet, walletMetaMask, await crowdsale.token.call());
     });
 

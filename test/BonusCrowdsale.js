@@ -31,8 +31,8 @@ contract('BonusCrowdsale', function ([_, wallet, wallet2, wallet3]) {
         const value = 30;
         const crowdsale = await Crowdsale.new(startTime, endTime, rate, wallet);
         const token = Token.at(await crowdsale.token.call());
-        const bonus_coef = 1000; //await Crowdsale.BONUS_COEFF();
-        const BONUS_TIMES_length = 6;
+        const bonus_coef = (await crowdsale.BONUS_COEFF.call()).toNumber();
+        const BONUS_TIMES_length = (await crowdsale.BONUS_TIMES_count.call()).toNumber();
 
         for (var i = 1; i < BONUS_TIMES_length; i++) {
             await increaseTimeTo(startTime + ((await crowdsale.BONUS_TIMES.call(i)).toNumber() + (await crowdsale.BONUS_TIMES.call(i-1)).toNumber())/2);

@@ -37,6 +37,73 @@ contract('Crowdsale random tests', function ([_, investor, wallet, purchaser, bi
     this.afterEndTime = this.endTime + duration.seconds(1)
 
     this.crowdsale = await Crowdsale.new(this.startTime, this.endTime, rate, wallet, wallet4, bitClaveWallet, presaleWallet)
+
+    await this.crowdsale.setBONUS_TIMES([ // Seconds
+      duration.hours(1),
+      duration.days(1),
+      duration.days(7),
+      duration.days(30),
+      duration.days(45),
+      duration.days(60)
+    ]);
+
+    await this.crowdsale.setBONUS_TIMES_VALUES([ // 10x percents
+      150,
+      100,
+      70,
+      50,
+      20,
+      0
+    ]);
+
+    await this.crowdsale.setBONUS_AMOUNTS([ // USD
+      900000,
+      600000,
+      450000,
+      300000,
+      225000,
+      150000,
+      90000,
+      60000,
+      45000,
+      30000,
+      22500,
+      15000,
+      9000,
+      6000,
+      4500,
+      3000,
+      2100,
+      1500,
+      900,
+      600,
+      300
+    ]);
+
+    await this.crowdsale.setBONUS_AMOUNTS_VALUES([ // 10x percents
+      130,
+      120,
+      110,
+      100,
+      90,
+      80,
+      70,
+      65,
+      60,
+      55,
+      50,
+      45,
+      40,
+      35,
+      30,
+      25,
+      20,
+      15,
+      10,
+      5,
+      0
+    ])
+
     //await this.crowdsale.unpause();
 
     this.token = CAToken.at(await this.crowdsale.token())

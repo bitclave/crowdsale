@@ -35,6 +35,50 @@ contract BonusCrowdsale is Crowdsale, Ownable {
     }
 
     /**
+    * @dev Retrieve length of bonuses by time array
+    * @return Bonuses by time array length
+    */
+    function BONUS_TIMES_count() public constant returns(uint) {
+        return BONUS_TIMES.length;
+    }
+
+    /**
+    * @dev Sets bonuses times
+    */
+    function setBONUS_TIMES(uint[] times) public onlyOwner {
+        BONUS_TIMES = times;
+    }
+
+    /**
+    * @dev Sets bonuses based on time
+    */
+    function setBONUS_TIMES_VALUES(uint[] values) public onlyOwner {
+        BONUS_TIMES_VALUES = values;
+    }
+
+    /**
+    * @dev Retrieve length of bonuses by amounts array
+    * @return Bonuses by amounts array length
+    */
+    function BONUS_AMOUNTS_count() public constant returns(uint) {
+        return BONUS_AMOUNTS.length;
+    }
+
+    /**
+    * @dev Sets bonuses USD amounts
+    */
+    function setBONUS_AMOUNTS(uint[] amounts) public onlyOwner {
+        BONUS_AMOUNTS = amounts;
+    }
+
+    /**
+    * @dev Sets bonuses based on USD amount
+    */
+    function setBONUS_AMOUNTS_VALUES(uint[] values) public onlyOwner {
+        BONUS_AMOUNTS_VALUES = values;
+    }
+
+    /**
     * @dev Overrided buyTokens method of parent Crowdsale contract  to provide bonus by changing and restoring rate variable
     * @param beneficiary walelt of investor to receive tokens
     */
