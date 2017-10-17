@@ -37,11 +37,78 @@ contract('Crowdsale random tests', function ([_, investor, wallet, purchaser, bi
     this.afterEndTime = this.endTime + duration.seconds(1)
 
     this.crowdsale = await Crowdsale.new(this.startTime, this.endTime, rate, wallet, wallet4, bitClaveWallet, presaleWallet)
+
+    await this.crowdsale.setBonusesForTimes(
+    [ // Seconds
+      duration.hours(1),
+      duration.days(1),
+      duration.days(7),
+      duration.days(30),
+      duration.days(45),
+      duration.days(60)
+    ],
+    [ // 10x percents
+      150,
+      100,
+      70,
+      50,
+      20,
+      0
+    ]);
+
+    await this.crowdsale.setBonusesForAmounts(
+    [ // USD
+      900000,
+      600000,
+      450000,
+      300000,
+      225000,
+      150000,
+      90000,
+      60000,
+      45000,
+      30000,
+      22500,
+      15000,
+      9000,
+      6000,
+      4500,
+      3000,
+      2100,
+      1500,
+      900,
+      600,
+      300
+    ],
+    [ // 10x percents
+      130,
+      120,
+      110,
+      100,
+      90,
+      80,
+      70,
+      65,
+      60,
+      55,
+      50,
+      45,
+      40,
+      35,
+      30,
+      25,
+      20,
+      15,
+      10,
+      5,
+      0
+    ]);
+
     //await this.crowdsale.unpause();
 
     this.token = CAToken.at(await this.crowdsale.token())
 
-    await this.crowdsale.mintPresaleTokens(tokensForPresale* (10**tokenDecimals));
+    await this.crowdsale.mintPresaleTokens(tokensForPresale * (10**tokenDecimals));
     // console.log("after mintPresaleTokens");
 
     // let tknowner = await this.token.owner();
@@ -261,15 +328,17 @@ contract('Crowdsale random tests', function ([_, investor, wallet, purchaser, bi
       await increaseTimeTo(this.afterEndTime)
       await this.crowdsale.mintTokens(investor, 100).should.be.fulfilled
     })
-    it('should reject minitng after finalized', async function () {
+
+    it('should reject minting after finalized', async function () {
       await this.crowdsale.finalize()
       await this.crowdsale.mintTokens(investor, 100).should.be.rejectedWith(EVMThrow)
-      await this.token.finishMinting();
+      await this.token.finishMinting().should.be.rejectedWith(EVMThrow);
       await this.token.mint(investor, 100).should.be.rejectedWith(EVMThrow)
       // await this.token.mint(investor, 1000000000*10**18)
       // const totalSupply = await this.token.totalSupply();
       // console.log("totalSupply", totalSupply);
     })
+    
   })
 
 

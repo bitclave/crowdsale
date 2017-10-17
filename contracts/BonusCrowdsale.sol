@@ -14,10 +14,10 @@ contract BonusCrowdsale is Crowdsale, Ownable {
 
     // Constants
     // The following will be populated by main crowdsale contract
-    uint[] public BONUS_TIMES;
-    uint[] public BONUS_TIMES_VALUES;
-    uint[] public BONUS_AMOUNTS;
-    uint[] public BONUS_AMOUNTS_VALUES;
+    uint32[] public BONUS_TIMES;
+    uint32[] public BONUS_TIMES_VALUES;
+    uint32[] public BONUS_AMOUNTS;
+    uint32[] public BONUS_AMOUNTS_VALUES;
     uint public constant BONUS_COEFF = 1000; // Values should be 10x percents, values from 0 to 1000
     
     // Members
@@ -35,15 +35,58 @@ contract BonusCrowdsale is Crowdsale, Ownable {
     }
 
     /**
+    * @dev Retrieve length of bonuses by time array
+    * @return Bonuses by time array length
+    */
+    function bonusesForTimesCount() public constant returns(uint) {
+        return BONUS_TIMES.length;
+    }
+
+    /**
+    * @dev Sets bonuses for time
+    */
+    function setBonusesForTimes(uint32[] times, uint32[] values) public onlyOwner {
+        require(times.length == values.length);
+        for (uint i = 0; i + 1 < times.length; i++) {
+            require(times[i] < times[i+1]);
+        }
+
+        BONUS_TIMES = times;
+        BONUS_TIMES_VALUES = values;
+    }
+
+    /**
+    * @dev Retrieve length of bonuses by amounts array
+    * @return Bonuses by amounts array length
+    */
+    function bonusesForAmountsCount() public constant returns(uint) {
+        return BONUS_AMOUNTS.length;
+    }
+
+    /**
+    * @dev Sets bonuses for USD amounts
+    */
+    function setBonusesForAmounts(uint32[] amounts, uint32[] values) public onlyOwner {
+        require(amounts.length == values.length);
+        for (uint i = 0; i + 1 < amounts.length; i++) {
+            require(amounts[i] > amounts[i+1]);
+        }
+
+        BONUS_AMOUNTS = amounts;
+        BONUS_AMOUNTS_VALUES = values;
+    }
+
+    /**
     * @dev Overrided buyTokens method of parent Crowdsale contract  to provide bonus by changing and restoring rate variable
     * @param beneficiary walelt of investor to receive tokens
     */
     function buyTokens(address beneficiary) public payable {
-        // Check constants consistency
-        require(BONUS_TIMES.length > 0 || BONUS_AMOUNTS.length > 0);
-        require(BONUS_TIMES.length == BONUS_TIMES_VALUES.length);
-        require(BONUS_AMOUNTS.length == BONUS_AMOUNTS_VALUES.length);
-
+        // If no bonuses presented
+        if (BONUS_TIMES.length == 0 && BONUS_AMOUNTS.length == 0) {
+            super.buyTokens(beneficiary);
+            return;
+        }
+        
         // Compute bonus
         uint256 usdValue = msg.value.mul(rate).mul(tokenPrice).div(100).div(10 ** tokenDecimals); 
         uint256 bonus = computeBonus(usdValue);
