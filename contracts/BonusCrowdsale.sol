@@ -81,11 +81,12 @@ contract BonusCrowdsale is Crowdsale, Ownable {
     * @param beneficiary walelt of investor to receive tokens
     */
     function buyTokens(address beneficiary) public payable {
-        // Check constants consistency
-        require(BONUS_TIMES.length > 0 || BONUS_AMOUNTS.length > 0);
-        require(BONUS_TIMES.length == BONUS_TIMES_VALUES.length);
-        require(BONUS_AMOUNTS.length == BONUS_AMOUNTS_VALUES.length);
-
+        // If no bonuses presented
+        if (BONUS_TIMES.length == 0 && BONUS_AMOUNTS.length == 0) {
+            super.buyTokens(beneficiary);
+            return;
+        }
+        
         // Compute bonus
         uint256 usdValue = msg.value.mul(rate).mul(tokenPrice).div(100).div(10 ** tokenDecimals); 
         uint256 bonus = computeBonus(usdValue);
