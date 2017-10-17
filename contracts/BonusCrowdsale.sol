@@ -38,21 +38,20 @@ contract BonusCrowdsale is Crowdsale, Ownable {
     * @dev Retrieve length of bonuses by time array
     * @return Bonuses by time array length
     */
-    function BONUS_TIMES_count() public constant returns(uint) {
+    function bonusesForTimesCount() public constant returns(uint) {
         return BONUS_TIMES.length;
     }
 
     /**
-    * @dev Sets bonuses times
+    * @dev Sets bonuses for time
     */
-    function setBONUS_TIMES(uint[] times) public onlyOwner {
-        BONUS_TIMES = times;
-    }
+    function setBonusesForTimes(uint[] times, uint[] values) public onlyOwner {
+        require(times.length == values.length);
+        for (uint i = 0; i + 1 < times.length; i++) {
+            require(times[i] < times[i+1]);
+        }
 
-    /**
-    * @dev Sets bonuses based on time
-    */
-    function setBONUS_TIMES_VALUES(uint[] values) public onlyOwner {
+        BONUS_TIMES = times;
         BONUS_TIMES_VALUES = values;
     }
 
@@ -60,21 +59,20 @@ contract BonusCrowdsale is Crowdsale, Ownable {
     * @dev Retrieve length of bonuses by amounts array
     * @return Bonuses by amounts array length
     */
-    function BONUS_AMOUNTS_count() public constant returns(uint) {
+    function bonusesForAmountsCount() public constant returns(uint) {
         return BONUS_AMOUNTS.length;
     }
 
     /**
-    * @dev Sets bonuses USD amounts
+    * @dev Sets bonuses for USD amounts
     */
-    function setBONUS_AMOUNTS(uint[] amounts) public onlyOwner {
-        BONUS_AMOUNTS = amounts;
-    }
+    function setBonusesForAmounts(uint[] amounts, uint[] values) public onlyOwner {
+        require(amounts.length == values.length);
+        for (uint i = 0; i + 1 < amounts.length; i++) {
+            require(amounts[i] > amounts[i+1]);
+        }
 
-    /**
-    * @dev Sets bonuses based on USD amount
-    */
-    function setBONUS_AMOUNTS_VALUES(uint[] values) public onlyOwner {
+        BONUS_AMOUNTS = amounts;
         BONUS_AMOUNTS_VALUES = values;
     }
 

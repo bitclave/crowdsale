@@ -38,16 +38,16 @@ contract('Crowdsale random tests', function ([_, investor, wallet, purchaser, bi
 
     this.crowdsale = await Crowdsale.new(this.startTime, this.endTime, rate, wallet, wallet4, bitClaveWallet, presaleWallet)
 
-    await this.crowdsale.setBONUS_TIMES([ // Seconds
+    await this.crowdsale.setBonusesForTimes(
+    [ // Seconds
       duration.hours(1),
       duration.days(1),
       duration.days(7),
       duration.days(30),
       duration.days(45),
       duration.days(60)
-    ]);
-
-    await this.crowdsale.setBONUS_TIMES_VALUES([ // 10x percents
+    ],
+    [ // 10x percents
       150,
       100,
       70,
@@ -56,7 +56,8 @@ contract('Crowdsale random tests', function ([_, investor, wallet, purchaser, bi
       0
     ]);
 
-    await this.crowdsale.setBONUS_AMOUNTS([ // USD
+    await this.crowdsale.setBonusesForAmounts(
+    [ // USD
       900000,
       600000,
       450000,
@@ -78,9 +79,8 @@ contract('Crowdsale random tests', function ([_, investor, wallet, purchaser, bi
       900,
       600,
       300
-    ]);
-
-    await this.crowdsale.setBONUS_AMOUNTS_VALUES([ // 10x percents
+    ],
+    [ // 10x percents
       130,
       120,
       110,
@@ -102,13 +102,13 @@ contract('Crowdsale random tests', function ([_, investor, wallet, purchaser, bi
       10,
       5,
       0
-    ])
+    ]);
 
     //await this.crowdsale.unpause();
 
     this.token = CAToken.at(await this.crowdsale.token())
 
-    await this.crowdsale.mintPresaleTokens(tokensForPresale* (10**tokenDecimals));
+    await this.crowdsale.mintPresaleTokens(tokensForPresale * (10**tokenDecimals));
     // console.log("after mintPresaleTokens");
 
     // let tknowner = await this.token.owner();
