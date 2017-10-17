@@ -46,13 +46,10 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
         endTime = startTime + duration.days(60);
         afterWhitelistTime = startTime + duration.hours(4);
         afterEndTime = endTime + duration.seconds(1);
-    });
 
-    it("initialize Crowdsale", async function () {
-        console.log("eth", ether(1));
         crowdsale = await Crowdsale.new(startTime, endTime, rate, wallet, wallet, bitClaveWallet,
             presaleWallet);
-        tokens = Token.at(await crowdsale.token.call());
+        tokens = await Token.at(await crowdsale.token.call());
         bonusCoefficient = await crowdsale.BONUS_COEFF.call();
         catToUsedPrice = await crowdsale.TOKEN_USDCENT_PRICE.call();
 
@@ -114,7 +111,7 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
         assert(hasEnded === false, "incorrect state of contract");
     });
 
-    it("crowdsale running for regular clients. (after 4 hours. without pause)", async function () {
+    it.only("crowdsale running for regular clients. (after 4 hours. without pause)", async function () {
         await crowdsale.unpause();
         /**
          * discount of one hour ignored. because regular investor buying tokens after four hours from start.

@@ -19,7 +19,7 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
     uint256 public constant DECIMALS = 18;
     uint256 public constant CAP = 2 * (10**9) * (10**DECIMALS);              // 2B CAT
     uint256 public constant BITCLAVE_AMOUNT = 1 * (10**9) * (10**DECIMALS);  // 1B CAT
-    uint256 public constant TOKEN_USDCENT_PRICE = 7;                         // $0.07
+    uint256 public constant TOKEN_USDCENT_PRICE = 10;                        // $0.10
 
     // Variables
     address public remainingTokensWallet;
