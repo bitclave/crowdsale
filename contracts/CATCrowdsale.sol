@@ -102,19 +102,21 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
     function finalize() public onlyOwner {
         // Mint tokens up to CAP and finalize tokens
         if (token.totalSupply() < tokensCap) {
-            mintTokens(remainingTokensWallet, tokensCap.sub(token.totalSupply()));
+            uint tokens = tokensCap.sub(token.totalSupply());
+            token.mint(remainingTokensWallet, tokens);
+            TokenMint(remainingTokensWallet, tokens);
         }
         super.finalize();
 
         // disable minting of CATs
         token.finishMinting();
         
-        // unpause CAToken to allow investors move ftokens
+        // unpause CAToken to allow investors move tokens
         if (CAToken(token).paused()) {
             CAToken(token).unpause();
         }
 
-        // take onwership over CATtoken contract
+        // take onwership over CAToken contract
         token.transferOwnership(owner);
     }
 
@@ -149,6 +151,7 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
     */
     function mintTokens(address beneficiary, uint256 tokens) public onlyOwner {
         require(beneficiary != 0x0);
+        require(now <= endTime);                               // Crowdsale (without startTime check)
         require(token.totalSupply().add(tokens) <= tokensCap); // TokensCappedCrowdsale
         require(!isFinalized);                                 // FinalizableCrowdsale
         

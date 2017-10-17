@@ -306,14 +306,6 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
         await validateBalance(walletInvestorSecond, investorBalance);
     });
 
-    it("finish crowdsale by time", async function () {
-        await increaseTimeTo(afterEndTime);
-        await buyTokens(walletInvestorSecond,
-            {from: walletInvestorSecond, value: tokenDecimalsIncrease.mul(10)}).should
-            .be
-            .rejectedWith(EVMThrow);
-    });
-
     it("change owner to Bitclave wallet", async function () {
         await mintTokensWithValidateBalance(walletForMint, 1);
 
@@ -329,6 +321,14 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
         await mintTokensWithValidateBalance(walletForMint, 1, {from: bitClaveWallet});
     });
 
+    it("finish crowdsale by time", async function () {
+        await increaseTimeTo(afterEndTime);
+        await buyTokens(walletInvestorSecond,
+            {from: walletInvestorSecond, value: tokenDecimalsIncrease.mul(10)}).should
+            .be
+            .rejectedWith(EVMThrow);
+    });
+
     it("validate totalSupply of tokens", async function () {
         const totalSupply = await tokens.totalSupply.call();
         let bitclaveWalletTokens = await crowdsale.BITCLAVE_AMOUNT.call();
@@ -342,17 +342,9 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
         const cap = await crowdsale.CAP.call();
         residueTokens = cap.minus(totalSupply);
 
-        await crowdsale.finalize().should
-            .be
-            .rejectedWith(EVMThrow);
-
         await crowdsale.finalize({from: bitClaveWallet});
 
-        await mintTokens(walletForMint, 1).should
-            .be
-            .rejectedWith(EVMThrow);
-
-        await mintTokens(walletForMint, 1, {from: bitClaveWallet}).should
+        await mintTokens(walletForMint, 1,  {from: bitClaveWallet}).should
             .be
             .rejectedWith(EVMThrow);
     });
