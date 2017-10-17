@@ -18,9 +18,9 @@ const CAToken = artifacts.require('./CAToken.sol');
 contract('Crowdsale random tests', function ([_, investor, wallet, purchaser, bitClaveWallet, presaleWallet, wallet2, wallet3, wallet4]) {
 
   const rateCatInOneEth = 3000;
-  const rateUsdInOneCat = 0.07
-  const rate = new BigNumber(rateCatInOneEth)
-  const value = ether(42)
+  const rateUsdInOneCat = 0.10;
+  const rate = new BigNumber(rateCatInOneEth);
+  const value = ether(42);
 
   const tokenDecimals = 18;
   const tokensForOwner = new BigNumber(1 * (10**9));
