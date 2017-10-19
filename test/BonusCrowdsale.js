@@ -19,16 +19,21 @@ const Token = artifacts.require('zeppelin-solidity/contracts/token/MintableToken
 
 contract('BonusCrowdsale', function ([_, wallet, wallet2, wallet3]) {
 
-    const startTime = latestTime() + duration.weeks(1);
-    const endTime = startTime + duration.weeks(10);
-    const afterEndTime = endTime + duration.seconds(1);
     const rate = 5000;
-    const value = 30;
+
+    var startTime;
+    var endTime;
+    var afterEndTime;
     var crowdsale;
     var token;
 
     before(async function () {
         await advanceBlock();
+
+        startTime = latestTime() + duration.weeks(1);
+        endTime = startTime + duration.weeks(10);
+        afterEndTime = endTime + duration.seconds(1);
+
         crowdsale = await Crowdsale.new(startTime, endTime, rate, wallet);
         token = Token.at(await crowdsale.token.call());
         await increaseTimeTo(startTime);
@@ -92,6 +97,8 @@ contract('BonusCrowdsale', function ([_, wallet, wallet2, wallet3]) {
         })
 
         it('should not apply bonus depending on time', async function () {
+            const value = 30;
+
             var balance = await token.balanceOf.call(wallet2);
             balance.should.be.bignumber.equal(0);
 
@@ -175,6 +182,7 @@ contract('BonusCrowdsale', function ([_, wallet, wallet2, wallet3]) {
         })
 
         it('should apply bonus depending on time', async function () {
+            const value = 30;
             const bonus_coef = (await crowdsale.BONUS_COEFF.call()).toNumber();
             const BONUS_TIMES_length = (await crowdsale.bonusesForTimesCount.call()).toNumber();
 
