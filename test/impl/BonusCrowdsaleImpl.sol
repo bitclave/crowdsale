@@ -4,6 +4,16 @@ pragma solidity ^0.4.11;
 import "../../contracts/BonusCrowdsale.sol";
 
 
+contract BonusCrowdsaleImplToken is MintableToken {
+
+    // Metadata
+    string public constant symbol = "TMP";
+    string public constant name = "Test token";
+    uint8 public constant decimals = 18;
+    string public constant version = "1.0";
+
+}
+
 contract BonusCrowdsaleImpl is Crowdsale, BonusCrowdsale {
 
     function BonusCrowdsaleImpl(
@@ -15,6 +25,10 @@ contract BonusCrowdsaleImpl is Crowdsale, BonusCrowdsale {
         Crowdsale(_startTime, _endTime, _rate, _wallet)
         BonusCrowdsale(10, 18) // $0.10, 18 decimals
     {
+    }
+
+    function createTokenContract() internal returns(MintableToken) {
+        return new BonusCrowdsaleImplToken();
     }
 
 }

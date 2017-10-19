@@ -119,7 +119,7 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
             0
         ]);
 
-        console.log(_, wallet, bitClaveWallet, presaleWallet, walletMetaMask, await crowdsale.token.call());
+        //console.log(_, wallet, bitClaveWallet, presaleWallet, walletMetaMask, await crowdsale.token.call());
     });
 
     it("funds on wallets", async function () {
