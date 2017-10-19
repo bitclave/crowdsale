@@ -111,26 +111,8 @@ contract('BonusCrowdsale', function ([_, wallet, wallet2, wallet3]) {
 
     describe('apply bonuses', async function () {
 
-        before(async function () {
-            await crowdsale.setBonusesForTimes(
-                [ // Seconds
-                    duration.hours(1),
-                    duration.days(1),
-                    duration.days(7),
-                    duration.days(30),
-                    duration.days(45),
-                    duration.days(60),
-                ],
-                [ // 10x percents
-                    150,
-                    100,
-                    70,
-                    50,
-                    20,
-                    0,
-                ]
-            );
-
+        it('should apply bonus depending on amount', async function () {
+            await crowdsale.setBonusesForTimes([], []);
             await crowdsale.setBonusesForAmounts(
                 [ // USD
                     900000,
@@ -179,9 +161,51 @@ contract('BonusCrowdsale', function ([_, wallet, wallet2, wallet3]) {
                     0,
                 ]
             );
+
+            const bonus_coef = (await crowdsale.BONUS_COEFF.call()).toNumber();
+            const tokenUsdPrice = (await crowdsale.tokenPrice.call()).toNumber();
+            const BONUS_AMOUNTS_length = (await crowdsale.bonusesForTimesCount.call()).toNumber();
+
+            for (var i = 1; i < BONUS_AMOUNTS_length; i++) {
+                const usdAmount = ((await crowdsale.BONUS_AMOUNTS.call(i)).toNumber() + (await crowdsale.BONUS_AMOUNTS.call(i-1)).toNumber()) / 2;
+                const amount = usdAmount / tokenUsdPrice / rate;
+
+                var balance = await token.balanceOf.call(wallet2);
+                if (balance > 0) {
+                    // Cleanup wallet2 balance
+                    await token.transfer(wallet3, balance, {from: wallet2});
+                    balance = await token.balanceOf.call(wallet2);
+                    balance.should.be.bignumber.equal(0);
+                }
+
+                const bonus = (await crowdsale.BONUS_AMOUNTS_VALUES.call(i + 1)).toNumber();
+                await crowdsale.buyTokens(wallet2, {from: wallet2, value: amount});
+                balance = await token.balanceOf.call(wallet2);
+                balance.should.be.bignumber.equal(amount * rate * (bonus_coef + bonus) / bonus_coef);
+            }
         })
 
         it('should apply bonus depending on time', async function () {
+            await crowdsale.setBonusesForAmounts([], []);
+            await crowdsale.setBonusesForTimes(
+                [ // Seconds
+                    duration.hours(1),
+                    duration.days(1),
+                    duration.days(7),
+                    duration.days(30),
+                    duration.days(45),
+                    duration.days(60),
+                ],
+                [ // 10x percents
+                    150,
+                    100,
+                    70,
+                    50,
+                    20,
+                    0,
+                ]
+            );
+
             const value = 30;
             const bonus_coef = (await crowdsale.BONUS_COEFF.call()).toNumber();
             const BONUS_TIMES_length = (await crowdsale.bonusesForTimesCount.call()).toNumber();
