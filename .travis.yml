@@ -1,3 +1,7 @@
+#
+# https://github.com/sc-forks/solidity-coverage/blob/master/docs/faq.md
+#
+
 sudo: required
 dist: trusty
 language: node_js
@@ -14,5 +18,3 @@ before_script:
   - sleep 5
 after_script:
   - npm run coverage && cat coverage/lcov.info | coveralls
-
-# https://github.com/sc-forks/solidity-coverage/blob/master/docs/faq.md
