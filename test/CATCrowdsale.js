@@ -49,6 +49,14 @@ contract('CATCrowdsale', function ([_, wallet, remainingsWallet, bitClaveWallet,
 
     makeSuite('setters failure', async function () {
 
+        it('should failure to mint tokens to 0', async function () {
+            await crowdsale.mintTokens(0, 1).should.be.rejectedWith(EVMThrow);
+        })
+
+        it('should failure to mint 0 tokens', async function () {
+            await crowdsale.mintTokens(wallet, 0).should.be.rejectedWith(EVMThrow);
+        })
+
         it('should failure to set 0 to rate', async function () {
             await crowdsale.setRate(0).should.be.rejectedWith(EVMThrow);
         })
