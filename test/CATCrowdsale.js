@@ -17,10 +17,11 @@ import EVMThrow from './helpers/EVMThrow';
 const Crowdsale = artifacts.require('./CATCrowdsale.sol');
 const Token = artifacts.require('./CAToken.sol');
 
-contract('CATCrowdsale', function ([_, wallet, remainingsWallet, bitClaveWallet, presaleWallet]) {
+contract('CATCrowdsale', function ([_, wallet, remainingsWallet, bitClaveWallet, presaleWallet, wallet2, remainingsWallet2]) {
 
     const decimals = 18;
     const rate = 3000;
+    const rate2 = 3001;
     var startTime;
     var endTime;
     var afterEndTime;
@@ -46,7 +47,7 @@ contract('CATCrowdsale', function ([_, wallet, remainingsWallet, bitClaveWallet,
         });
     }
 
-    makeSuite('failures', async function () {
+    makeSuite('setters failure', async function () {
 
         it('should failure to set 0 to rate', async function () {
             await crowdsale.setRate(0).should.be.rejectedWith(EVMThrow);
@@ -58,6 +59,28 @@ contract('CATCrowdsale', function ([_, wallet, remainingsWallet, bitClaveWallet,
 
         it('should failure to set 0 to remainings wallet', async function () {
             await crowdsale.setRemainingTokensWallet(0).should.be.rejectedWith(EVMThrow);
+        })
+
+    })
+
+    makeSuite('setters success', async function () {
+
+        it('should set rate2 to rate', async function () {
+            (await crowdsale.rate.call()).should.be.bignumber.equal(rate);
+            await crowdsale.setRate(rate2);
+            (await crowdsale.rate.call()).should.be.bignumber.equal(rate2);
+        })
+
+        it('should set wallet2 to wallet', async function () {
+            (await crowdsale.wallet.call()).should.be.equal(wallet);
+            await crowdsale.setWallet(wallet2);
+            (await crowdsale.wallet.call()).should.be.equal(wallet2);
+        })
+
+        it('should set remainingsWallet2 to remainings wallet', async function () {
+            (await crowdsale.remainingTokensWallet.call()).should.be.equal(remainingsWallet);
+            await crowdsale.setRemainingTokensWallet(remainingsWallet2);
+            (await crowdsale.remainingTokensWallet.call()).should.be.equal(remainingsWallet2);
         })
 
     })
@@ -127,7 +150,7 @@ contract('CATCrowdsale', function ([_, wallet, remainingsWallet, bitClaveWallet,
         })
 
         it('should fail to mint', async function () {
-            await crowdsale.mintTokens(wallet, (10 ** 9)* (10 ** decimals)).should.be.rejectedWith(EVMThrow);
+            await crowdsale.mintTokens(wallet, 1).should.be.rejectedWith(EVMThrow);
         })
 
         it('should fail to buy', async function () {
