@@ -13,7 +13,6 @@ contract TokensCappedCrowdsale is Crowdsale {
     uint256 public tokensCap;
 
     function TokensCappedCrowdsale(uint256 _tokensCap) {
-        require(_tokensCap > 0);
         tokensCap = _tokensCap;
     }
 

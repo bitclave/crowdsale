@@ -17,14 +17,13 @@ import EVMThrow from './helpers/EVMThrow';
 const Crowdsale = artifacts.require('./impl/BonusCrowdsaleImpl.sol');
 const Token = artifacts.require('zeppelin-solidity/contracts/token/MintableToken.sol');
 
-contract('BonusCrowdsale', async function ([_, wallet, wallet2, wallet3]) {
-
-    await advanceBlock();
-    var startTime = latestTime() + duration.weeks(1);
-    var endTime = startTime + duration.weeks(10);
-    var afterEndTime = endTime + duration.seconds(1);
+contract('BonusCrowdsale', function ([_, wallet, wallet2, wallet3]) {
 
     const rate = 5000;
+    var startTime;
+    var endTime;
+    var afterEndTime;
+
     var crowdsale;
     var token;
 
@@ -32,9 +31,10 @@ contract('BonusCrowdsale', async function ([_, wallet, wallet2, wallet3]) {
     function makeSuite(name, tests) {
         describe(name, async function () {
             before(async function () {
-                startTime += duration.years(1);
-                endTime += duration.years(1);
-                afterEndTime += duration.years(1);
+                await advanceBlock();
+                startTime = latestTime() + duration.weeks(1);
+                endTime = startTime + duration.weeks(10);
+                afterEndTime = endTime + duration.seconds(1)
 
                 crowdsale = await Crowdsale.new(startTime, endTime, rate, wallet);
                 token = Token.at(await crowdsale.token.call());
