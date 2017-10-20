@@ -63,6 +63,24 @@ contract('CATCrowdsale', function ([_, wallet, remainingsWallet, bitClaveWallet,
 
     })
 
+    makeSuite('mint failure 2', async function () {
+
+        it('should failure to mint after finalization', async function () {
+            await crowdsale.finalize();
+            await crowdsale.mintTokens(wallet, 1).should.be.rejectedWith(EVMThrow);
+        })
+
+    })
+
+    makeSuite('mint failure 3', async function () {
+
+        it('should failure to mint after endTime', async function () {
+            await increaseTimeTo(afterEndTime);
+            await crowdsale.mintTokens(wallet, 1).should.be.rejectedWith(EVMThrow);
+        })
+
+    })
+
     makeSuite('setters failure', async function () {
 
         it('should failure to set 0 to rate', async function () {
