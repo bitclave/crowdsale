@@ -313,18 +313,18 @@ contract('Crowdsale random tests', function ([_, investor, wallet, purchaser, bi
       }
   })
 
-  describe('minitng', function () {
+  describe('minting', function () {
 
-    it('should accept minitng before start for preICO', async function () {
+    it('should accept minting before start for preICO', async function () {
       await this.crowdsale.mintTokens(investor, 100).should.be.fulfilled
     })
 
-    it('should accept minitng after start', async function () {
+    it('should accept minting after start', async function () {
       await increaseTimeTo(this.startTime)
       await this.crowdsale.mintTokens(investor, 100).should.be.fulfilled
     })
 
-    it('should not accept minitng after end', async function () {
+    it('should not accept minting after end', async function () {
       await increaseTimeTo(this.afterEndTime)
       await this.crowdsale.mintTokens(investor, 100).should.be.rejectedWith(EVMThrow)
     })
