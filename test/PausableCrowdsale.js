@@ -14,27 +14,30 @@ import {increaseTimeTo, duration} from './helpers/increaseTime';
 import latestTime from './helpers/latestTime';
 import EVMThrow from './helpers/EVMThrow';
 
-//const PausedCrowdsale = artifacts.require('./impl/PausableCrowdsaleImplPaused.sol');
-//const UnpausedCrowdsale = artifacts.require('./impl/PausableCrowdsaleImplUnpaused.sol');
+const PausedCrowdsale = artifacts.require('./impl/PausableCrowdsaleImplPaused.sol');
+const UnpausedCrowdsale = artifacts.require('./impl/PausableCrowdsaleImplUnpaused.sol');
 
-contract('PausableCrowdsale', async function ([_, wallet, wallet2, wallet3]) {
+contract('PausableCrowdsale', function ([_, wallet, wallet2, wallet3]) {
 
-    await advanceBlock();
-    // var startTime = latestTime() + duration.weeks(1);
-    // var endTime = startTime + duration.weeks(10);
-    // var afterEndTime = endTime + duration.seconds(1);
+    var pausedCrowdsale;
+    var unpausedCrowdsale;
 
-    // before(async function() {
-    //     const pausedCrowdsale = await PausedCrowdsale.new(startTime, endTime, 1, wallet);
-    //     const unpausedCrowdsale = await UnpausedCrowdsale.new(startTime, endTime, 1, wallet);
-    // })
+    before(async function() {
+        await advanceBlock();
+        var startTime = latestTime() + duration.weeks(1);
+        var endTime = startTime + duration.weeks(10);
+        var afterEndTime = endTime + duration.seconds(1);
 
-    // it('should be created paused', async function() {
-    //     (await pausedCrowdsale.paused.call()).should.be.true;
-    // })
+        pausedCrowdsale = await PausedCrowdsale.new(startTime, endTime, 1, wallet);
+        unpausedCrowdsale = await UnpausedCrowdsale.new(startTime, endTime, 1, wallet);
+    })
 
-    // it('should be created unpaused', async function() {
-    //     (await unpausedCrowdsale.paused.call()).should.be.false;
-    // })
+    it('should be created paused', async function() {
+        (await pausedCrowdsale.paused.call()).should.be.true;
+    })
+
+    it('should be created unpaused', async function() {
+        (await unpausedCrowdsale.paused.call()).should.be.false;
+    })
 
 })
