@@ -177,20 +177,4 @@ contract('CATCrowdsale', function ([_, wallet, remainingsWallet, bitClaveWallet,
 
     })
 
-    makeSuite('after finalization', async function () {
-
-        before(async function () {
-            await crowdsale.finalize();
-        })
-
-        it('should fail to mint', async function () {
-            await crowdsale.mintTokens(wallet, 1).should.be.rejectedWith(EVMThrow);
-        })
-
-        it('should fail to buy', async function () {
-            await crowdsale.buyTokens(wallet, {value: web3.toWei(100)}).should.be.rejectedWith(EVMThrow);
-        })
-
-    })
-
 })
