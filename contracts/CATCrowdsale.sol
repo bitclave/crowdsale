@@ -153,8 +153,8 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
         require(beneficiary != 0x0);
         require(tokens > 0);
         require(now <= endTime);                               // Crowdsale (without startTime check)
-        require(token.totalSupply().add(tokens) <= tokensCap); // TokensCappedCrowdsale
         require(!isFinalized);                                 // FinalizableCrowdsale
+        require(token.totalSupply().add(tokens) <= tokensCap); // TokensCappedCrowdsale
         
         token.mint(beneficiary, tokens);
         TokenMint(beneficiary, tokens);
