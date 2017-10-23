@@ -204,6 +204,18 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
             .rejectedWith(EVMThrow);
     });
 
+    it("unpause tokens and try transfer tokens from investor wallet", async function () {
+        await crowdsale.unpauseTokens();
+
+        await tokens.transfer(walletInvestorSecond, 1, {from: walletInvestorFirst});
+
+        await crowdsale.pauseTokens();
+
+        await tokens.transfer(walletInvestorSecond, 1, {from: walletInvestorFirst}).should
+            .be
+            .rejectedWith(EVMThrow);
+    });
+
     it("buy tokens at 2 - 7 days", async function () {
         await increaseTimeTo(afterWhitelistTime + duration.days(1));
         /*
@@ -339,6 +351,10 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
 
     it("validate returned funds to main wallet", async function () {
         validateBalance(wallet, residueTokens);
+    });
+
+    it("try transfer tokens from investor wallet. after finalized crowdsale", async function () {
+        await tokens.transfer(walletInvestorSecond, 1, {from: walletInvestorFirst});
     });
 
     it("is bitClaveWallet owner of CATToken", async function () {

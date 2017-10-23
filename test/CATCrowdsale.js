@@ -151,6 +151,32 @@ contract('CATCrowdsale', function ([_, wallet, remainingsWallet, bitClaveWallet,
 
     })
 
+    makeSuite('finalize paused tokens', async function () {
+
+        it('should unpause tokens', async function () {
+            (await token.paused.call()).should.be.true;
+            await crowdsale.finalize();
+            (await token.paused.call()).should.be.false;
+        })
+
+    })
+
+    makeSuite('finalize unpaused tokens', async function () {
+
+        it('should not unpause tokens', async function () {
+            (await token.paused.call()).should.be.true;
+            await crowdsale.unpauseTokens();
+            (await token.paused.call()).should.be.false;
+            await crowdsale.pauseTokens();
+            (await token.paused.call()).should.be.true;
+            await crowdsale.unpauseTokens();
+            (await token.paused.call()).should.be.false;
+            await crowdsale.finalize();
+            (await token.paused.call()).should.be.false;
+        })
+
+    })
+
     makeSuite('after finalization', async function () {
 
         before(async function () {

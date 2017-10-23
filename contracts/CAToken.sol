@@ -15,7 +15,7 @@ contract CAToken is MintableToken, PausableToken {
     string public constant symbol = "CAT";
     string public constant name = "Consumer Activity Token";
     uint8 public constant decimals = 18;
-    string public constant version = "2.0";
+    string public constant version = "1.0";
 
     /**
     * @dev Override MintableTokenn.finishMinting() to add canMint modifier

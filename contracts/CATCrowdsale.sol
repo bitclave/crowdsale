@@ -5,7 +5,7 @@ import "zeppelin-solidity/contracts/crowdsale/FinalizableCrowdsale.sol";
 import "./TokensCappedCrowdsale.sol";
 import "./PausableCrowdsale.sol";
 import "./BonusCrowdsale.sol";
-import "./PreCAToken.sol";
+import "./CAToken.sol";
 
 
   /**
@@ -91,7 +91,9 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
     * @return ERC20 contract associated with the crowdsale
     */
     function createTokenContract() internal returns(MintableToken) {
-        return new PreCAToken();
+        CAToken token = new CAToken();
+        token.pause();
+        return token;
     }
 
     /**
@@ -108,12 +110,31 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
 
         // disable minting of CATs
         token.finishMinting();
+        
+        // unpause CAToken to allow investors move tokens
+        if (CAToken(token).paused()) {
+            CAToken(token).unpause();
+        }
 
         // take onwership over CAToken contract
         token.transferOwnership(owner);
     }
 
     // Owner methods
+
+    /**
+    * @dev Helper to Pause CAToken
+    */
+    function pauseTokens() public onlyOwner {
+        CAToken(token).pause();
+    }
+
+    /**
+    * @dev Helper to UnPause CAToken
+    */
+    function unpauseTokens() public onlyOwner {
+        CAToken(token).unpause();
+    }
 
     /**
     * @dev Allocates tokens from preSale to a special wallet. Called once as part of crowdsale setup
