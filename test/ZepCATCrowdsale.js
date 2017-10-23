@@ -388,18 +388,6 @@ contract('Crowdsale random tests', function ([_, investor, wallet, purchaser, bi
       await this.token.transfer(wallet3, 5, {from: investor}).should.be.rejectedWith(EVMThrow)
     })
 
-    it('should allow transfer for unpaused token', async function () {
-      await increaseTimeTo(this.startTime + duration.hours(6))
-      await this.crowdsale.unpause();
-      await this.crowdsale.buyTokens(investor, {value: value, from: purchaser}).should.be.fulfilled
-
-      // let balance = await this.token.balanceOf(investor);
-      // console.log("balance", balance);
-
-      await this.crowdsale.unpauseTokens();
-      await this.token.transfer(wallet3, 5, {from: investor}).should.be.fulfilled
-    })
-
     it('should reject payments after end', async function () {
       await increaseTimeTo(this.afterEndTime)
       await this.crowdsale.send(value).should.be.rejectedWith(EVMThrow)
