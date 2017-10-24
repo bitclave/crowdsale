@@ -354,7 +354,9 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
     });
 
     it("try transfer tokens from investor wallet. after finalized crowdsale", async function () {
-        await tokens.transfer(walletInvestorSecond, 1, {from: walletInvestorFirst});
+        await tokens.transfer(walletInvestorSecond, 1, {from: walletInvestorFirst}).should
+            .be
+            .rejectedWith(EVMThrow);
     });
 
     it("is bitClaveWallet owner of CATToken", async function () {
