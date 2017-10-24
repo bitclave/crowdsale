@@ -14,9 +14,9 @@ import {increaseTimeTo, duration} from './helpers/increaseTime';
 import latestTime from './helpers/latestTime';
 import EVMThrow from './helpers/EVMThrow';
 
-const Token = artifacts.require('./PreCAToken.sol');
+const Token = artifacts.require('./CAToken.sol');
 
-contract('PreCAToken', function ([_, wallet1, wallet2]) {
+contract('CAToken', function ([_, wallet1, wallet2]) {
 
     it('should be killable after minting finished', async function() {
         const token = await Token.new();
