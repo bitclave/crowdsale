@@ -1,7 +1,7 @@
 require('babel-register');
 require('babel-polyfill');
 const Provider = require('./helpers/Provider');
-const ProviderRopsten = Provider.createRopstenNetwork('couch solve unique spirit wine fine occur rhythm foot feature glory away');
+const ProviderRopsten = Provider.createRopstenNetwork("type here your private key from owner address");
 
 module.exports = {
     networks: {

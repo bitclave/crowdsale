@@ -7,8 +7,7 @@
 module.exports = Provider;
 
 const NetworkModel = require('../helpers/NetworkModel');
-const bip39 = require('bip39');
-const hdkey = require('ethereumjs-wallet/hdkey');
+const Wallet = require('ethereumjs-wallet');
 const ProviderEngine = require('web3-provider-engine');
 const WalletSubprovider = require('web3-provider-engine/subproviders/wallet.js');
 const Web3Subprovider = require('web3-provider-engine/subproviders/web3.js');
@@ -22,23 +21,20 @@ const NETWORK_ID_MAIN = 1;
 const NETWORK_ID_ROPSTEN = 3;
 const NETWORK_ID_TESTRPC = '*';
 
-Provider.createMainNetwork = function (mnemonic) {
-    return new Provider(new NetworkModel(NETWORK_ID_MAIN), NETWORK_INFURA_MAIN, mnemonic);
+Provider.createMainNetwork = function (privateKey) {
+    return new Provider(new NetworkModel(NETWORK_ID_MAIN), NETWORK_INFURA_MAIN, privateKey);
 };
 
-Provider.createRopstenNetwork = function (mnemonic) {
-    return new Provider(new NetworkModel(NETWORK_ID_ROPSTEN), NETWORK_INFURA_ROPSTEN, mnemonic);
+Provider.createRopstenNetwork = function (privateKey) {
+    return new Provider(new NetworkModel(NETWORK_ID_ROPSTEN), NETWORK_INFURA_ROPSTEN, privateKey);
 };
 
-Provider.createTestRpcNetwork = function (mnemonic) {
-    return new Provider(new NetworkModel(NETWORK_ID_TESTRPC), NETWORK_TESTRPC, mnemonic);
+Provider.createTestRpcNetwork = function (privateKey) {
+    return new Provider(new NetworkModel(NETWORK_ID_TESTRPC), NETWORK_TESTRPC, privateKey);
 };
 
-function Provider(networkModel, networkUrl, mnemonic) {
-    const hdwallet = hdkey.fromMasterSeed(bip39.mnemonicToSeed(mnemonic));
-
-    const wallet_hdpath = "m/44'/60'/0'/0/";
-    const wallet = hdwallet.derivePath(wallet_hdpath + '0').getWallet();
+function Provider(networkModel, networkUrl, privateKey) {
+    const wallet = new Wallet(new Buffer(privateKey, 'hex'));
     const engine = new ProviderEngine();
     engine.addProvider(new FilterSubprovider());
     engine.addProvider(new WalletSubprovider(wallet, {}));
