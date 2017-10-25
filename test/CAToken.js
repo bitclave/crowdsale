@@ -18,11 +18,20 @@ const Token = artifacts.require('./CAToken.sol');
 
 contract('CAToken', function ([_, wallet1, wallet2]) {
 
-    it('should be killable after minting finished', async function() {
+    it('should be killable after minting finished with destructor', async function() {
         const token = await Token.new();
-        await token.kill().should.be.rejectedWith(EVMThrow);
+
+        await token.destroy().should.be.rejectedWith(EVMThrow);
         await token.finishMinting();
-        await token.kill().should.be.fulfilled;
+        await token.destroy().should.be.fulfilled;
+    })
+
+    it('should be killable after minting finished with destructor companion', async function() {
+        const token = await Token.new();
+
+        await token.destroyAndSend(wallet1).should.be.rejectedWith(EVMThrow);
+        await token.finishMinting();
+        await token.destroyAndSend(wallet1).should.be.fulfilled;
     })
 
 })
