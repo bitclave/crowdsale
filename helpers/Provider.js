@@ -44,7 +44,8 @@ function Provider(networkModel, networkUrl, privateKey) {
         networkModel.provider = engine;
         this._network = networkModel;
     } catch (e) {
-        if (e.message.search('Private key does not satisfy') > -1) {
+        if (e.message.search('Private key does not satisfy') > -1
+            || e.message.search('Invalid hex string')) {
             console.log(networkUrl, 'incorrect private key');
         } else {
             console.log(networkUrl, e);
