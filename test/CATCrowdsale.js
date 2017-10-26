@@ -161,4 +161,35 @@ contract('CATCrowdsale', function ([_, wallet, remainingsWallet, bitClaveWallet,
 
     })
 
+    makeSuite('presale wallet transfer', async function () {
+
+        before(async function() {
+            crowdsale.mintPresaleTokens(1000);
+        })
+
+        it('should fail directly', async function () {
+            await token.transfer(wallet2, 100, {from: presaleWallet}).should.be.rejectedWith(EVMThrow);
+        })
+
+    })
+
+    makeSuite('presale wallet transfer', async function () {
+
+        before(async function() {
+            crowdsale.mintPresaleTokens(1000);
+        })
+
+        it.only('should work over special method', async function () {
+            (await token.balanceOf.call(wallet2)).should.be.bignumber.equal(0);
+            (await token.balanceOf.call(presaleWallet)).should.be.bignumber.equal(1000);
+            await crowdsale.transferFromPresaleWallet(wallet2, 100, {from: presaleWallet});
+            console.log(presaleWallet);
+            console.log(crowdsale.address);
+            console.log(await token.lastCaller.call());
+            (await token.balanceOf.call(wallet2)).should.be.bignumber.equal(100);
+            (await token.balanceOf.call(presaleWallet)).should.be.bignumber.equal(900);
+        })
+
+    })
+
 })

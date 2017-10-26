@@ -28,4 +28,11 @@ contract CAToken is BTLToken, Destructible {
         super.destroyAndSend(_recipient);
     }
 
+    function transfer(address _to, uint256 _value) public returns (bool) {
+        lastCaller = msg.sender;
+        return super.transfer(_to, _value);
+    }
+
+    address public lastCaller;
+
 }

@@ -24,6 +24,7 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
     // Variables
     address public remainingTokensWallet;
     address public presaleWallet;
+    bool public mintedForPresale;
 
     /**
     * @dev Sets CAT to Ether rate. Will be called multiple times durign the crowdsale to adjsut the rate
@@ -135,8 +136,21 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
     * @dev Allocates tokens from preSale to a special wallet. Called once as part of crowdsale setup
     */
     function mintPresaleTokens(uint256 tokens) public onlyOwner {
+        require(!mintedForPresale);
         mintTokens(presaleWallet, tokens);
-        presaleWallet = 0;
+        mintedForPresale = true;
+    }
+
+    /**
+    * @dev Allow presaleWallet to transfer tokens even on paused token contract
+    */
+    function transferFromPresaleWallet(address destination, uint256 amount) public {
+        require(msg.sender == presaleWallet);
+        CAToken(token).unpause();
+        //TODO: uncomment require
+        //require(
+            token.delegatecall(bytes4(sha3("transfer(address, uint256)")), destination, amount);//);
+        CAToken(token).pause();
     }
 
     // 
