@@ -110,11 +110,6 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
 
         // disable minting of CATs
         token.finishMinting();
-        
-        // unpause CAToken to allow investors move tokens
-        if (CAToken(token).paused()) {
-            CAToken(token).unpause();
-        }
 
         // take onwership over CAToken contract
         token.transferOwnership(owner);
