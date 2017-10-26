@@ -34,21 +34,34 @@ Provider.createTestRpcNetwork = function (privateKey) {
 };
 
 function Provider(networkModel, networkUrl, privateKey) {
-    const wallet = new Wallet(new Buffer(privateKey, 'hex'));
-    const engine = new ProviderEngine();
-    engine.addProvider(new FilterSubprovider());
-    engine.addProvider(new WalletSubprovider(wallet, {}));
-    engine.addProvider(new Web3Subprovider(new Web3.providers.HttpProvider(networkUrl)));
-    networkModel.from = '0x' + wallet.getAddress().toString('hex');
-    networkModel.provider = engine;
-    this._network = networkModel;
+    try {
+        const wallet = new Wallet(new Buffer(privateKey, 'hex'));
+        const engine = new ProviderEngine();
+        engine.addProvider(new FilterSubprovider());
+        engine.addProvider(new WalletSubprovider(wallet, {}));
+        engine.addProvider(new Web3Subprovider(new Web3.providers.HttpProvider(networkUrl)));
+        networkModel.from = '0x' + wallet.getAddress().toString('hex');
+        networkModel.provider = engine;
+        this._network = networkModel;
+    } catch (e) {
+        if (e.message.search('Private key does not satisfy') > -1) {
+            console.log(networkUrl, 'incorrect private key');
+        } else {
+            console.log(networkUrl, e);
+        }
+    }
 }
 
 Provider.prototype.getNetwork = function () {
-    this._network.provider.start();
+    if (this._network) {
+        this._network.provider.start();
+    }
+
     return this._network;
 };
 
 Provider.prototype.stop = function () {
-    this._network.provider.stop();
+    if (this._network) {
+        this._network.provider.stop();
+    }
 };
