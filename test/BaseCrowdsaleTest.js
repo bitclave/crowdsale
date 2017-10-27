@@ -46,15 +46,78 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
         endTime = startTime + duration.days(60);
         afterWhitelistTime = startTime + duration.hours(4);
         afterEndTime = endTime + duration.seconds(1);
-    });
 
-    it("initialize Crowdsale", async function () {
-        console.log("eth", ether(1));
         crowdsale = await Crowdsale.new(startTime, endTime, rate, wallet, wallet, bitClaveWallet,
             presaleWallet);
         tokens = Token.at(await crowdsale.token.call());
         bonusCoefficient = await crowdsale.BONUS_COEFF.call();
         catToUsedPrice = await crowdsale.TOKEN_USDCENT_PRICE.call();
+
+        await crowdsale.setBonusesForTimes(
+        [ // Seconds
+            duration.hours(1),
+            duration.days(1),
+            duration.days(7),
+            duration.days(30),
+            duration.days(45),
+            duration.days(60)
+        ],
+        [ // 10x percents
+            150,
+            100,
+            70,
+            50,
+            20,
+            0
+        ]);
+
+        await crowdsale.setBonusesForAmounts(
+        [ // USD
+            900000,
+            600000,
+            450000,
+            300000,
+            225000,
+            150000,
+            90000,
+            60000,
+            45000,
+            30000,
+            22500,
+            15000,
+            9000,
+            6000,
+            4500,
+            3000,
+            2100,
+            1500,
+            900,
+            600,
+            300
+        ],
+        [ // 10x percents
+            130,
+            120,
+            110,
+            100,
+            90,
+            80,
+            70,
+            65,
+            60,
+            55,
+            50,
+            45,
+            40,
+            35,
+            30,
+            25,
+            20,
+            15,
+            10,
+            5,
+            0
+        ]);
 
         console.log(_, wallet, bitClaveWallet, presaleWallet, walletMetaMask, await crowdsale.token.call());
     });
@@ -120,13 +183,13 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
          * discount of one hour ignored. because regular investor buying tokens after four hours from start.
          * first day = discount 10%
          *
-         * 12 ~ 2695$ - bonus 2%
-         * 433 ~ 91000$ - bonus 7%
-         * 3 ~ 602$ - bonus 0.5%
+         * 8 ~ 2400$ - bonus 2%
+         * 301 ~ 90300$ - bonus 7%
+         * 2.5 ~ 750$ - bonus 0.5%
          *
          */
         await regularInvestorBuyTokens(walletInvestorFirst, duration.hours(1),
-            [ether(12), ether(433), ether(3)], [20, 70, 5], [100, 100, 100]);
+            [ether(8), ether(301), ether(2.5)], [20, 70, 5], [100, 100, 100]);
     });
 
     it("send tokens to investor from presale (transfer already disabled)", async function () {
@@ -158,13 +221,13 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
         /*
          * between 2 and 7 days = discount 7%
          *
-         * 809 ~ 169.932$ - bonus 8%
-         * 4522 ~ 949.620$ - bonus 13%
-         * 10 ~ 2100$ - bonus 2%
+         * 550 ~ 165000$ - bonus 8%
+         * 3300 ~ 990000$ - bonus 13%
+         * 8 ~ 2400$ - bonus 2%
          *
          */
         await regularInvestorBuyTokens(walletInvestorFirst, duration.days(1),
-            [ether(809), ether(4522), ether(10)], [80, 130, 20], [70, 70, 70]);
+            [ether(550), ether(3300), ether(8)], [80, 130, 20], [70, 70, 70]);
     });
 
     it("contract on a pause in the sales process", async function () {
@@ -195,13 +258,13 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
         /*
          * between 31 and 45 days = discount 2%
          *
-         * 2 ~ 300$ - bonus 0%
-         * 1429 ~ 300.000$ - bonus 10%
-         * 8 ~ 1.500$ - bonus 1.5%
+         * 1 ~ 300$ - bonus 0%
+         * 1000 ~ 300.000$ - bonus 10%
+         * 5 ~ 1.500$ - bonus 1.5%
          *
          */
         await regularInvestorBuyTokens(walletInvestorFirst, duration.days(4),
-            [ether(2), ether(1429), ether(8)], [0, 100, 15], [20, 20, 20]);
+            [ether(1), ether(1000), ether(5)], [0, 100, 15], [20, 20, 20]);
     });
 
     it("buy tokens at 45 - 60 days", async function () {
@@ -209,13 +272,13 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
         /*
          * between 45 and 60 days = discount 0%
          *
-         * 2.143 ~ 450135 - bonus 11%
-         * 3 ~ 600$ - bonus 0.5%
-         * 5 ~ 900$ - bonus 1%
+         * 1500 ~ 450135$ - bonus 11%
+         * 2 ~ 600$ - bonus 0.5%
+         * 3 ~ 900$ - bonus 1%
          *
          */
         await regularInvestorBuyTokens(walletInvestorFirst, duration.days(5),
-            [ether(2143), ether(3), ether(5)], [110, 5, 10], [0, 0, 0]);
+            [ether(1500), ether(2), ether(3)], [110, 5, 10], [0, 0, 0]);
     });
 
     it("buy tokens for test count in wallet via MetaMask (via buyTokens)", async function () {

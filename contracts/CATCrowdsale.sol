@@ -19,7 +19,7 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
     uint256 public constant DECIMALS = 18;
     uint256 public constant CAP = 2 * (10**9) * (10**DECIMALS);              // 2B CAT
     uint256 public constant BITCLAVE_AMOUNT = 1 * (10**9) * (10**DECIMALS);  // 1B CAT
-    uint256 public constant TOKEN_USDCENT_PRICE = 7;                         // $0.07
+    uint256 public constant TOKEN_USDCENT_PRICE = 10;                        // $0.10
 
     // Variables
     address public remainingTokensWallet;
@@ -37,7 +37,7 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
     }
 
     /**
-    * @dev Sets the wallet to forward teh collected funds
+    * @dev Sets the wallet to forward ETH collected funds
     */
     function setWallet(address _wallet) external onlyOwner {
         require(_wallet != 0x0);
@@ -79,76 +79,6 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
     {
         remainingTokensWallet = _remainingTokensWallet;
         presaleWallet = _presaleWallet;
-
-        // define bonus terms
-        BONUS_TIMES = [
-            1 hours,
-            1 days,
-            7 days,
-            30 days,
-            45 days,
-            60 days
-        ];
-
-        // bonus values are percentage scaled by 10
-        BONUS_TIMES_VALUES = [
-            150,
-            100,
-            70,
-            50,
-            20,
-            0
-        ];
-
-        // bonus amounts are amount in USD
-        BONUS_AMOUNTS = [
-            900000,
-            600000,
-            450000,
-            300000,
-            225000,
-            150000,
-            90000,
-            60000,
-            45000,
-            30000,
-            22500,
-            15000,
-            9000,
-            6000,
-            4500,
-            3000,
-            2100,
-            1500,
-            900,
-            600,
-            300
-        ];
-
-        // bonus values are percentage scaled by 10
-        BONUS_AMOUNTS_VALUES = [
-            130,
-            120,
-            110,
-            100,
-            90,
-            80,
-            70,
-            65,
-            60,
-            55,
-            50,
-            45,
-            40,
-            35,
-            30,
-            25,
-            20,
-            15,
-            10,
-            5,
-            0
-        ];
 
         // allocate tokens to BitClave
         mintTokens(_bitClaveWallet, BITCLAVE_AMOUNT);
