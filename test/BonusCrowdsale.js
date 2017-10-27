@@ -228,7 +228,7 @@ contract('BonusCrowdsale', function ([_, wallet, wallet2, wallet3]) {
             this.timeout(60000);
 
             const bonus_coef = (await crowdsale.BONUS_COEFF.call()).toNumber();
-            const tokenCentPrice = (await crowdsale.tokenPrice.call()).toNumber();
+            const tokenCentPrice = (await crowdsale.tokenPriceInCents.call()).toNumber();
             const BONUS_AMOUNTS_length = (await crowdsale.bonusesForAmountsCount.call()).toNumber();
 
             for (var j = 1; j < BONUS_AMOUNTS_length; j++) {
@@ -305,7 +305,7 @@ contract('BonusCrowdsale', function ([_, wallet, wallet2, wallet3]) {
             this.timeout(60000);
 
             const bonus_coef = (await crowdsale.BONUS_COEFF.call()).toNumber();
-            const tokenCentPrice = (await crowdsale.tokenPrice.call()).toNumber();
+            const tokenCentPrice = (await crowdsale.tokenPriceInCents.call()).toNumber();
             const BONUS_TIMES_length = (await crowdsale.bonusesForTimesCount.call()).toNumber();
             const BONUS_AMOUNTS_length = (await crowdsale.bonusesForAmountsCount.call()).toNumber();
 

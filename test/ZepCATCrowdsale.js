@@ -173,14 +173,14 @@ contract('Crowdsale random tests', function ([_, investor, wallet, purchaser, bi
       
       await crowdsale.unpause();
 
-      const event = crowdsale.TokenMint({_from:web3.eth.coinbase}, {fromBlock: 0});
+      const event = token.Mint({_from:web3.eth.coinbase}, {fromBlock: 0});
       const promise = new Promise(resolve => event.watch(async function(error, response) {
 
           // Check supply
           const totalSupply = await token.totalSupply();
           totalSupply.should.be.bignumber.equal((tokensForOwner.add(tokensForPresale)).mul(10**tokenDecimals));
 
-          if (response.args.beneficiary == bitClaveWallet) {
+          if (response.args.to == bitClaveWallet) {
               // Check event arguments
               response.args.amount.should.be.bignumber.equal(tokensForOwner.mul(10**tokenDecimals));
 
@@ -188,7 +188,7 @@ contract('Crowdsale random tests', function ([_, investor, wallet, purchaser, bi
               const balance = await token.balanceOf(bitClaveWallet);
               balance.should.be.bignumber.equal(tokensForOwner.mul(10**tokenDecimals));
           }
-          else if (response.args.beneficiary == crowdsale.address) {
+          else if (response.args.to == crowdsale.address) {
               // Check event arguments
               response.args.amount.should.be.bignumber.equal(tokensForPresale.mul(10**tokenDecimals));
 

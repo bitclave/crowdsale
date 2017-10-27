@@ -53,7 +53,6 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
     }
 
     // Events
-    event TokenMint(address indexed beneficiary, uint256 amount);
     event RateChange(uint256 rate);
 
     /**
@@ -95,16 +94,22 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
     }
 
     /**
-    * @dev Finalizes the crowdsale. Must be called at the end of crowdsale
+    * @dev Overrides FinalazableCrowdsale to do some prework
     */
     function finalize() public onlyOwner {
-        // Mint tokens up to CAP and finalize tokens
+        // Mint tokens up to CAP to be able to finalize crowdsale
         if (token.totalSupply() < tokensCap) {
             uint tokens = tokensCap.sub(token.totalSupply());
             token.mint(remainingTokensWallet, tokens);
-            TokenMint(remainingTokensWallet, tokens);
         }
         super.finalize();
+    }
+
+    /**
+    * @dev Finalizes the crowdsale
+    */
+    function finalization() internal {
+        super.finalization();
 
         // disable minting of CATs
         token.finishMinting();
@@ -159,7 +164,6 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
         require(token.totalSupply().add(tokens) <= tokensCap); // TokensCappedCrowdsale
         
         token.mint(beneficiary, tokens);
-        TokenMint(beneficiary, tokens);
     }
 
 }
