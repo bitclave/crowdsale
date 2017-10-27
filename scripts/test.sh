@@ -27,7 +27,7 @@ testrpc() {
     if [ "$SOLIDITY_COVERAGE" = true ]; then
         node_modules/.bin/testrpc-sc --gasLimit 0xfffffffffff --port "$testrpc_port" "$@"
     else
-        node_modules/.bin/testrpc "$@"
+        node_modules/.bin/testrpc -l 6700000 "$@"
     fi
 }
 
