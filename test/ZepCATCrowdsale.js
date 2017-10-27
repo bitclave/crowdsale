@@ -11,11 +11,10 @@ const should = require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should()
 
-const Crowdsale = artifacts.require('CATCrowdsale')
-// const Crowdsale = artifacts.require('CATCrowdsale2')
+const Crowdsale = artifacts.require('./CATCrowdsale.sol')
 const CAToken = artifacts.require('./CAToken.sol');
 
-contract('Crowdsale random tests', function ([_, investor, wallet, purchaser, bitClaveWallet, presaleWallet, wallet2, wallet3, wallet4]) {
+contract('Crowdsale random tests', function ([_, investor, wallet, purchaser, bitClaveWallet, wallet2, wallet3, wallet4]) {
 
   const rateCatInOneEth = 3000;
   const rateUsdInOneCat = 0.10;
@@ -36,7 +35,7 @@ contract('Crowdsale random tests', function ([_, investor, wallet, purchaser, bi
     this.endTime = this.startTime + duration.days(60);
     this.afterEndTime = this.endTime + duration.seconds(1)
 
-    this.crowdsale = await Crowdsale.new(this.startTime, this.endTime, rate, wallet, wallet4, bitClaveWallet, presaleWallet)
+    this.crowdsale = await Crowdsale.new(this.startTime, this.endTime, rate, wallet, wallet4, bitClaveWallet)
 
     await this.crowdsale.setBonusesForTimes(
     [ // Seconds
@@ -189,12 +188,12 @@ contract('Crowdsale random tests', function ([_, investor, wallet, purchaser, bi
               const balance = await token.balanceOf(bitClaveWallet);
               balance.should.be.bignumber.equal(tokensForOwner.mul(10**tokenDecimals));
           }
-          else if (response.args.to == presaleWallet) {
+          else if (response.args.to == crowdsale.address) {
               // Check event arguments
               response.args.amount.should.be.bignumber.equal(tokensForPresale.mul(10**tokenDecimals));
 
               // Check balace
-              const balance = await token.balanceOf(presaleWallet);
+              const balance = await token.balanceOf(crowdsale.address);
               balance.should.be.bignumber.equal(tokensForPresale.mul(10**tokenDecimals));
 
               event.stopWatching();
@@ -207,7 +206,7 @@ contract('Crowdsale random tests', function ([_, investor, wallet, purchaser, bi
       }));
 
       await promise;
-    })
+  })
 
   it('creates tokens when creator asks', async function () {
 

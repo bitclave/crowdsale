@@ -17,7 +17,7 @@ import EVMThrow from './helpers/EVMThrow';
 const Crowdsale = artifacts.require('./CATCrowdsale.sol');
 const Token = artifacts.require('./CAToken.sol');
 
-contract('CATCrowdsale', function ([_, wallet, remainingsWallet, bitClaveWallet, presaleWallet, wallet2, remainingsWallet2]) {
+contract('CATCrowdsale', function ([_, wallet, remainingsWallet, bitClaveWallet, wallet2, remainingsWallet2]) {
 
     const decimals = 18;
     const rate = 3000;
@@ -38,8 +38,7 @@ contract('CATCrowdsale', function ([_, wallet, remainingsWallet, bitClaveWallet,
                 endTime = startTime + duration.weeks(10);
                 afterEndTime = endTime + duration.seconds(1)
 
-                crowdsale = await Crowdsale.new(startTime, endTime, rate, wallet, remainingsWallet, bitClaveWallet,
-                    presaleWallet);
+                crowdsale = await Crowdsale.new(startTime, endTime, rate, wallet, remainingsWallet, bitClaveWallet);
                 token = Token.at(await crowdsale.token.call());
                 await increaseTimeTo(startTime);
             });
@@ -157,6 +156,24 @@ contract('CATCrowdsale', function ([_, wallet, remainingsWallet, bitClaveWallet,
             (await token.paused.call()).should.be.true;
             await crowdsale.finalize();
             (await token.paused.call()).should.be.true;
+        })
+
+    })
+
+    makeSuite('presale wallet transfer', async function () {
+
+        before(async function() {
+            crowdsale.mintPresaleTokens(1000);
+        })
+
+        it('should work over special method', async function () {
+            (await token.balanceOf.call(wallet2)).should.be.bignumber.equal(0);
+            (await token.balanceOf.call(crowdsale.address)).should.be.bignumber.equal(1000);
+
+            await crowdsale.transferPresaleTokens(wallet2, 100);
+
+            (await token.balanceOf.call(wallet2)).should.be.bignumber.equal(100);
+            (await token.balanceOf.call(crowdsale.address)).should.be.bignumber.equal(900);
         })
 
     })

@@ -63,7 +63,6 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
     * @param _wallet wallet to forward the collected funds
     * @param _remainingTokensWallet wallet to hold the unsold tokens
     * @param _bitClaveWallet wallet to hold the initial 1B tokens of BitClave
-    * @param _presaleWallet walelt to hold tokens from preSale for investors that did not provide wallet yet
     */
     function CATCrowdsale(
         uint256 _startTime,
@@ -71,13 +70,12 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
         uint256 _rate,
         address _wallet,
         address _remainingTokensWallet,
-        address _bitClaveWallet,
-        address _presaleWallet
+        address _bitClaveWallet
     )
         Crowdsale(_startTime, _endTime, _rate, _wallet)
     {
         remainingTokensWallet = _remainingTokensWallet;
-        presaleWallet = _presaleWallet;
+        presaleWallet = this;
 
         // allocate tokens to BitClave
         mintTokens(_bitClaveWallet, BITCLAVE_AMOUNT);
@@ -142,6 +140,15 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
     function mintPresaleTokens(uint256 tokens) public onlyOwner {
         mintTokens(presaleWallet, tokens);
         presaleWallet = 0;
+    }
+
+    /**
+    * @dev Transfer presaled tokens even on paused token contract
+    */
+    function transferPresaleTokens(address destination, uint256 amount) public onlyOwner {
+        unpauseTokens();
+        token.transfer(destination, amount);
+        pauseTokens();
     }
 
     // 
