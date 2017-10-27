@@ -81,8 +81,8 @@ contract BonusCrowdsale is Crowdsale, Ownable {
     * @param beneficiary walelt of investor to receive tokens
     */
     function buyTokens(address beneficiary) public payable {
-        // Compute usd amount = wei * rate * tokenPriceInCents / centsPerUsd / (10 ** decimals)
-        uint256 usdValue = msg.value.mul(rate).mul(tokenPriceInCents).div(100).div(10 ** tokenDecimals); 
+        // Compute usd amount = wei * catsInEth * usdcentsInCat / usdcentsPerUsd / weisPerEth
+        uint256 usdValue = msg.value.mul(rate).mul(tokenPriceInCents).div(100).div(1 ether); 
         
         // Compute time and amount bonus
         uint256 bonus = computeBonus(usdValue);
