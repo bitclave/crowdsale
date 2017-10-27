@@ -23,7 +23,6 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
 
     // Variables
     address public remainingTokensWallet;
-    address public presaleWallet;
     bool public mintedForPresale;
 
     /**
@@ -65,7 +64,6 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
     * @param _wallet wallet to forward the collected funds
     * @param _remainingTokensWallet wallet to hold the unsold tokens
     * @param _bitClaveWallet wallet to hold the initial 1B tokens of BitClave
-    * @param _presaleWallet walelt to hold tokens from preSale for investors that did not provide wallet yet
     */
     function CATCrowdsale(
         uint256 _startTime,
@@ -73,13 +71,11 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
         uint256 _rate,
         address _wallet,
         address _remainingTokensWallet,
-        address _bitClaveWallet,
-        address _presaleWallet
+        address _bitClaveWallet
     )
         Crowdsale(_startTime, _endTime, _rate, _wallet)
     {
         remainingTokensWallet = _remainingTokensWallet;
-        presaleWallet = _presaleWallet;
 
         // allocate tokens to BitClave
         mintTokens(_bitClaveWallet, BITCLAVE_AMOUNT);
@@ -137,20 +133,17 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
     */
     function mintPresaleTokens(uint256 tokens) public onlyOwner {
         require(!mintedForPresale);
-        mintTokens(presaleWallet, tokens);
+        mintTokens(this, tokens);
         mintedForPresale = true;
     }
 
     /**
-    * @dev Allow presaleWallet to transfer tokens even on paused token contract
+    * @dev Transfer presaled tokens even on paused token contract
     */
-    function transferFromPresaleWallet(address destination, uint256 amount) public {
-        require(msg.sender == presaleWallet);
-        CAToken(token).unpause();
-        //TODO: uncomment require
-        //require(
-            token.delegatecall(bytes4(sha3("transfer(address, uint256)")), destination, amount);//);
-        CAToken(token).pause();
+    function transferPresaleTokens(address destination, uint256 amount) public onlyOwner {
+        unpauseTokens();
+        token.transfer(destination, amount);
+        pauseTokens();
     }
 
     // 

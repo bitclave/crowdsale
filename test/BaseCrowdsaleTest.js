@@ -19,7 +19,7 @@ const tokenDecimals = 18;
 const tokenDecimalsIncrease = new BigNumber(10).pow(tokenDecimals);
 const catForEth = new BigNumber(3000);
 const rate = catForEth;  // rate - 1.000.000.000.000.000.000.000.000(one ETH) to 3000(CAT)
-contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, walletForMint,
+contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, walletForMint,
                                       walletInvestorFirst, walletInvestorSecond, walletMetaMask]) {
 
     let startTime;
@@ -47,8 +47,7 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
         afterWhitelistTime = startTime + duration.hours(4);
         afterEndTime = endTime + duration.seconds(1);
 
-        crowdsale = await Crowdsale.new(startTime, endTime, rate, wallet, wallet, bitClaveWallet,
-            presaleWallet);
+        crowdsale = await Crowdsale.new(startTime, endTime, rate, wallet, wallet, bitClaveWallet);
         tokens = Token.at(await crowdsale.token.call());
         bonusCoefficient = await crowdsale.BONUS_COEFF.call();
         catToUsedPrice = await crowdsale.TOKEN_USDCENT_PRICE.call();
@@ -118,8 +117,6 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
             5,
             0
         ]);
-
-        //console.log(_, wallet, bitClaveWallet, presaleWallet, walletMetaMask, await crowdsale.token.call());
     });
 
     it("funds on wallets", async function () {
@@ -429,12 +426,10 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, presaleWallet, wal
     };
 
     let mintPresaleTokensWithValidateBalance = async function (amount, params) {
-        const initialBalance = await getBalance(presaleWallet);
+        (await getBalance(crowdsale.address)).should.be.bignumber.equal(0);
         await crowdsale.mintPresaleTokens(amount, params);
         usedTokensSupply = usedTokensSupply.add(amount);
-
-        const updatedBalance = await getBalance(presaleWallet);
-        updatedBalance.should.be.bignumber.equal(initialBalance.add(amount));
+        (await getBalance(crowdsale.address)).should.be.bignumber.equal(amount);
     };
 
     let mintTokens = async function (wallet, value, params) {
