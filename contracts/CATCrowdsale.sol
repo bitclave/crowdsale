@@ -23,6 +23,7 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
 
     // Variables
     address public remainingTokensWallet;
+    address public presaleWallet;
     bool public mintedForPresale;
 
     /**
@@ -76,6 +77,7 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
         Crowdsale(_startTime, _endTime, _rate, _wallet)
     {
         remainingTokensWallet = _remainingTokensWallet;
+        presaleWallet = this;
 
         // allocate tokens to BitClave
         mintTokens(_bitClaveWallet, BITCLAVE_AMOUNT);
@@ -133,7 +135,7 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
     */
     function mintPresaleTokens(uint256 tokens) public onlyOwner {
         require(!mintedForPresale);
-        mintTokens(this, tokens);
+        mintTokens(presaleWallet, tokens);
         mintedForPresale = true;
     }
 
@@ -142,7 +144,7 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
     */
     function transferPresaleTokens(address destination, uint256 amount) public onlyOwner {
         unpauseTokens();
-        token.transfer(destination, amount);
+        token.transfer(destination, amount); // from presaleWallet, which is equal to this
         pauseTokens();
     }
 

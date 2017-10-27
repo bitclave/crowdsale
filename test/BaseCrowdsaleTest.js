@@ -19,8 +19,7 @@ const tokenDecimals = 18;
 const tokenDecimalsIncrease = new BigNumber(10).pow(tokenDecimals);
 const catForEth = new BigNumber(3000);
 const rate = catForEth;  // rate - 1.000.000.000.000.000.000.000.000(one ETH) to 3000(CAT)
-contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, walletForMint,
-                                      walletInvestorFirst, walletInvestorSecond, walletMetaMask]) {
+contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, walletForMint, walletInvestorFirst, walletInvestorSecond, walletMetaMask]) {
 
     let startTime;
     let endTime;
@@ -426,10 +425,11 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, walletForMint,
     };
 
     let mintPresaleTokensWithValidateBalance = async function (amount, params) {
-        (await getBalance(crowdsale.address)).should.be.bignumber.equal(0);
+        const initialBalance = await getBalance(crowdsale.address);
         await crowdsale.mintPresaleTokens(amount, params);
         usedTokensSupply = usedTokensSupply.add(amount);
-        (await getBalance(crowdsale.address)).should.be.bignumber.equal(amount);
+        const updatedBalance = await getBalance(crowdsale.address);
+        updatedBalance.should.be.bignumber.equal(initialBalance.add(amount));
     };
 
     let mintTokens = async function (wallet, value, params) {
