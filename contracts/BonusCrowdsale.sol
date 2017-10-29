@@ -18,7 +18,7 @@ contract BonusCrowdsale is Crowdsale, Ownable {
     uint32[] public BONUS_TIMES_VALUES;
     uint32[] public BONUS_AMOUNTS;
     uint32[] public BONUS_AMOUNTS_VALUES;
-    uint public constant BONUS_COEFF = 1000; // Values should be 10x percents, value 1000 = 100%
+    uint public constant BONUS_COEFF = 1000; // Values should be 10x percents, value 1000 = 100%, 2000 = 200%
     
     // Members
     uint public tokenPriceInCents;
