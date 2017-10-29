@@ -18,19 +18,19 @@ contract BonusCrowdsale is Crowdsale, Ownable {
     uint32[] public BONUS_TIMES_VALUES;
     uint32[] public BONUS_AMOUNTS;
     uint32[] public BONUS_AMOUNTS_VALUES;
-    uint public constant BONUS_COEFF = 1000; // Values should be 10x percents, values from 0 to 1000
+    uint public constant BONUS_COEFF = 1000; // Values should be 10x percents, value 1000 = 100%, 2000 = 200%
     
     // Members
-    uint public tokenPrice;
+    uint public tokenPriceInCents;
     uint public tokenDecimals;
 
     /**
     * @dev Contructor
-    * @param _tokenPrice token price in USD cents. The price is fixed
+    * @param _tokenPriceInCents token price in USD cents. The price is fixed
     * @param _tokenDecimals number of digits after decimal point for CAT token
     */
-    function BonusCrowdsale(uint256 _tokenPrice, uint256 _tokenDecimals) {
-        tokenPrice = _tokenPrice;
+    function BonusCrowdsale(uint256 _tokenPriceInCents, uint256 _tokenDecimals) {
+        tokenPriceInCents = _tokenPriceInCents;
         tokenDecimals = _tokenDecimals;
     }
 
@@ -81,14 +81,10 @@ contract BonusCrowdsale is Crowdsale, Ownable {
     * @param beneficiary walelt of investor to receive tokens
     */
     function buyTokens(address beneficiary) public payable {
-        // If no bonuses presented
-        if (BONUS_TIMES.length == 0 && BONUS_AMOUNTS.length == 0) {
-            super.buyTokens(beneficiary);
-            return;
-        }
+        // Compute usd amount = wei * catsInEth * usdcentsInCat / usdcentsPerUsd / weisPerEth
+        uint256 usdValue = msg.value.mul(rate).mul(tokenPriceInCents).div(100).div(1 ether); 
         
-        // Compute bonus
-        uint256 usdValue = msg.value.mul(rate).mul(tokenPrice).div(100).div(10 ** tokenDecimals); 
+        // Compute time and amount bonus
         uint256 bonus = computeBonus(usdValue);
 
         // Apply bonus by adjusting and restoring rate member
