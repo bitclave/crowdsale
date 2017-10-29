@@ -53,7 +53,6 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
     }
 
     // Events
-    event TokenMint(address indexed beneficiary, uint256 amount);
     event RateChange(uint256 rate);
 
     /**
@@ -160,7 +159,6 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
         require(!isFinalized);                                 // FinalizableCrowdsale
         
         token.mint(beneficiary, tokens);
-        TokenMint(beneficiary, tokens);
     }
 
 }
