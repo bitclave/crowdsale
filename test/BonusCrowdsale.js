@@ -44,7 +44,7 @@ contract('BonusCrowdsale', function ([_, wallet, wallet2, wallet3]) {
         });
     }
 
-    makeSuite("incorrect cases", async function() {
+    makeSuite('incorrect cases', async function() {
 
         it('should not be configurable with incorrect arguments count', async function () {
             await crowdsale.setBonusesForTimes(
@@ -98,7 +98,7 @@ contract('BonusCrowdsale', function ([_, wallet, wallet2, wallet3]) {
 
     })
 
-    makeSuite("not apply bonuses", async function() {
+    makeSuite('not apply bonuses', async function() {
 
         before(async function () {
             await crowdsale.setBonusesForTimes([], []);
@@ -118,7 +118,7 @@ contract('BonusCrowdsale', function ([_, wallet, wallet2, wallet3]) {
 
     })
 
-    makeSuite("apply time bonuses", async function() {
+    makeSuite('apply time bonuses', async function() {
 
         before(async function () {
             await crowdsale.setBonusesForAmounts([], []);
@@ -170,7 +170,7 @@ contract('BonusCrowdsale', function ([_, wallet, wallet2, wallet3]) {
 
     })
 
-    makeSuite("apply amount bonuses", async function() {
+    makeSuite('apply amount bonuses', async function() {
 
         before(async function () {
             await crowdsale.setBonusesForTimes([], []);
@@ -255,7 +255,7 @@ contract('BonusCrowdsale', function ([_, wallet, wallet2, wallet3]) {
 
     })
 
-    makeSuite("apply time and amount bonuses", async function() {
+    makeSuite('apply time and amount bonuses', async function() {
 
         before(async function () {
             await crowdsale.setBonusesForTimes(
