@@ -23,6 +23,7 @@ contract('CATCrowdsale', function ([_, wallet, remainingsWallet, bitClaveWallet,
     const rate = 3000;
     const rate2 = 3001;
     var startTime;
+    var midTime;
     var endTime;
     var afterEndTime;
 
@@ -32,11 +33,12 @@ contract('CATCrowdsale', function ([_, wallet, remainingsWallet, bitClaveWallet,
     // https://stackoverflow.com/questions/26107027/
     function makeSuite(name, tests) {
         describe(name, async function () {
-            before(async function () {
+            beforeEach(async function () {
                 await advanceBlock();
                 startTime = latestTime() + duration.weeks(1);
                 endTime = startTime + duration.weeks(10);
-                afterEndTime = endTime + duration.seconds(1)
+                afterEndTime = endTime + duration.seconds(1);
+                midTime = (startTime + endTime) / 2;
 
                 crowdsale = await Crowdsale.new(startTime, endTime, rate, wallet, remainingsWallet, bitClaveWallet);
                 token = Token.at(await crowdsale.token.call());
@@ -160,9 +162,37 @@ contract('CATCrowdsale', function ([_, wallet, remainingsWallet, bitClaveWallet,
 
     })
 
+    makeSuite('adjust end time', async function () {
+
+        it('should not works after finalization', async function () {
+            await increaseTimeTo(afterEndTime);
+            await crowdsale.finalize();
+            await crowdsale.setEndTime(afterEndTime + duration.days(1)).should.be.rejectedWith(EVMThrow);
+        })
+
+        it('should not be able to set before start time', async function () {
+            await crowdsale.setEndTime(startTime - duration.seconds(1)).should.be.rejectedWith(EVMThrow);
+        })
+
+        it('should not be able to set present time', async function () {
+            await increaseTimeTo(midTime);
+            await crowdsale.setEndTime(midTime - duration.seconds(1)).should.be.rejectedWith(EVMThrow);
+        })
+
+        it('should be able to set end time', async function () {
+            await increaseTimeTo(midTime);
+            await crowdsale.setEndTime(midTime + duration.seconds(1));
+            (await crowdsale.endTime.call()).should.be.bignumber.equal(midTime + duration.seconds(1));
+
+            await crowdsale.setEndTime(endTime + duration.seconds(1));
+            (await crowdsale.endTime.call()).should.be.bignumber.equal(endTime + duration.seconds(1));
+        })
+
+    })
+
     makeSuite('presale wallet transfer', async function () {
 
-        before(async function() {
+        beforeEach(async function() {
             crowdsale.mintPresaleTokens(1000);
         })
 

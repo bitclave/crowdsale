@@ -37,6 +37,16 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
     }
 
     /**
+    * @dev Allows to adjust the crowdsale end time
+    */
+    function setEndTime(uint256 _endTime) external onlyOwner {
+        require(!isFinalized);
+        require(_endTime >= startTime);
+        require(_endTime >= now);
+        endTime = _endTime;
+    }
+
+    /**
     * @dev Sets the wallet to forward ETH collected funds
     */
     function setWallet(address _wallet) external onlyOwner {
