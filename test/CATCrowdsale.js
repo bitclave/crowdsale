@@ -65,6 +65,7 @@ contract('CATCrowdsale', function ([_, wallet, remainingsWallet, bitClaveWallet,
     makeSuite('mint failure 2', async function () {
 
         it('should failure to mint after finalization', async function () {
+            await increaseTimeTo(afterEndTime);
             await crowdsale.finalize();
             await crowdsale.mintTokens(wallet, 1).should.be.rejectedWith(EVMThrow);
         })
@@ -121,6 +122,7 @@ contract('CATCrowdsale', function ([_, wallet, remainingsWallet, bitClaveWallet,
     makeSuite('finalization all', async function () {
 
         it('should issue all tokens to remainings wallet', async function () {
+            await increaseTimeTo(afterEndTime);
             await crowdsale.finalize();
             const balance = await token.balanceOf.call(remainingsWallet);
             balance.should.be.bignumber.equal((10 ** 9)* (10 ** decimals));
@@ -132,6 +134,7 @@ contract('CATCrowdsale', function ([_, wallet, remainingsWallet, bitClaveWallet,
 
         it('should issue some tokens to remainings wallet', async function () {
             await crowdsale.mintTokens(wallet, (10 ** 9) * (10 ** decimals) / 2);
+            await increaseTimeTo(afterEndTime);
             await crowdsale.finalize();
             const balance = await token.balanceOf.call(remainingsWallet);
             balance.should.be.bignumber.equal((10 ** 9) * (10 ** decimals) / 2);
@@ -153,6 +156,7 @@ contract('CATCrowdsale', function ([_, wallet, remainingsWallet, bitClaveWallet,
     makeSuite('finalize paused tokens', async function () {
 
         it('should not unpause tokens', async function () {
+            await increaseTimeTo(afterEndTime);
             (await token.paused.call()).should.be.true;
             await crowdsale.finalize();
             (await token.paused.call()).should.be.true;

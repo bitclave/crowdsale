@@ -94,22 +94,16 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
     }
 
     /**
-    * @dev Overrides FinalazableCrowdsale to do some prework
-    */
-    function finalize() public onlyOwner {
-        // Mint tokens up to CAP to be able to finalize crowdsale
-        if (token.totalSupply() < tokensCap) {
-            uint tokens = tokensCap.sub(token.totalSupply());
-            token.mint(remainingTokensWallet, tokens);
-        }
-        super.finalize();
-    }
-
-    /**
     * @dev Finalizes the crowdsale
     */
     function finalization() internal {
         super.finalization();
+
+        // Mint tokens up to CAP
+        if (token.totalSupply() < tokensCap) {
+            uint tokens = tokensCap.sub(token.totalSupply());
+            token.mint(remainingTokensWallet, tokens);
+        }
 
         // disable minting of CATs
         token.finishMinting();

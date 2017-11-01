@@ -329,6 +329,7 @@ contract('Crowdsale random tests', function ([_, investor, wallet, purchaser, bi
     })
 
     it('should reject minting after finalized', async function () {
+      await increaseTimeTo(this.afterEndTime);
       await this.crowdsale.finalize()
       await this.crowdsale.mintTokens(investor, 100).should.be.rejectedWith(EVMThrow)
       await this.token.finishMinting().should.be.rejectedWith(EVMThrow);
