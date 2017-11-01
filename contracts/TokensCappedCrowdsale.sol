@@ -12,7 +12,7 @@ contract TokensCappedCrowdsale is Crowdsale {
 
     uint256 public tokensCap;
 
-    function TokensCappedCrowdsale(uint256 _tokensCap) {
+    function TokensCappedCrowdsale(uint256 _tokensCap) public {
         tokensCap = _tokensCap;
     }
 

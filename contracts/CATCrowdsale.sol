@@ -71,7 +71,7 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
         address _wallet,
         address _remainingTokensWallet,
         address _bitClaveWallet
-    )
+    ) public
         Crowdsale(_startTime, _endTime, _rate, _wallet)
     {
         remainingTokensWallet = _remainingTokensWallet;

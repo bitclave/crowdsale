@@ -13,7 +13,7 @@ import "zeppelin-solidity/contracts/lifecycle/Pausable.sol";
 */
 contract PausableCrowdsale is Crowdsale, Pausable {
 
-    function PausableCrowdsale(bool _paused) {
+    function PausableCrowdsale(bool _paused) public {
         if (_paused) {
             pause();
         }
