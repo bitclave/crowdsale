@@ -32,7 +32,7 @@ contract('CATCrowdsale', function ([_, wallet, remainingsWallet, bitClaveWallet,
     // https://stackoverflow.com/questions/26107027/
     function makeSuite(name, tests) {
         describe(name, async function () {
-            before(async function () {
+            beforeEach(async function () {
                 await advanceBlock();
                 startTime = latestTime() + duration.weeks(1);
                 endTime = startTime + duration.weeks(10);
@@ -60,18 +60,17 @@ contract('CATCrowdsale', function ([_, wallet, remainingsWallet, bitClaveWallet,
             await crowdsale.mintTokens(wallet, (new BigNumber((10**9) * (10**decimals))).add(1)).should.be.rejectedWith(EVMThrow);
         })
 
-    })
-
-    makeSuite('mint failure 2', async function () {
-
         it('should failure to mint after finalization', async function () {
+            await increaseTimeTo(afterEndTime);
             await crowdsale.finalize();
             await crowdsale.mintTokens(wallet, 1).should.be.rejectedWith(EVMThrow);
         })
 
-    })
-
-    makeSuite('mint failure 3', async function () {
+        it('should failure to mint after early finalization', async function () {
+            await crowdsale.mintTokens(wallet, (10 ** 9) * (10 ** decimals));
+            await crowdsale.finalize();
+            await crowdsale.mintTokens(wallet2, 1).should.be.rejectedWith(EVMThrow);
+        })
 
         it('should failure to mint after endTime', async function () {
             await increaseTimeTo(afterEndTime);
@@ -121,6 +120,7 @@ contract('CATCrowdsale', function ([_, wallet, remainingsWallet, bitClaveWallet,
     makeSuite('finalization all', async function () {
 
         it('should issue all tokens to remainings wallet', async function () {
+            await increaseTimeTo(afterEndTime);
             await crowdsale.finalize();
             const balance = await token.balanceOf.call(remainingsWallet);
             balance.should.be.bignumber.equal((10 ** 9)* (10 ** decimals));
@@ -132,6 +132,7 @@ contract('CATCrowdsale', function ([_, wallet, remainingsWallet, bitClaveWallet,
 
         it('should issue some tokens to remainings wallet', async function () {
             await crowdsale.mintTokens(wallet, (10 ** 9) * (10 ** decimals) / 2);
+            await increaseTimeTo(afterEndTime);
             await crowdsale.finalize();
             const balance = await token.balanceOf.call(remainingsWallet);
             balance.should.be.bignumber.equal((10 ** 9) * (10 ** decimals) / 2);
@@ -142,7 +143,7 @@ contract('CATCrowdsale', function ([_, wallet, remainingsWallet, bitClaveWallet,
     makeSuite('finalization none', async function () {
 
         it('should issue none tokens to remainings wallet', async function () {
-            await crowdsale.mintTokens(wallet, (10 ** 9)* (10 ** decimals));
+            await crowdsale.mintTokens(wallet, (10 ** 9) * (10 ** decimals));
             await crowdsale.finalize();
             const balance = await token.balanceOf.call(remainingsWallet);
             balance.should.be.bignumber.equal(0);
@@ -153,6 +154,7 @@ contract('CATCrowdsale', function ([_, wallet, remainingsWallet, bitClaveWallet,
     makeSuite('finalize paused tokens', async function () {
 
         it('should not unpause tokens', async function () {
+            await increaseTimeTo(afterEndTime);
             (await token.paused.call()).should.be.true;
             await crowdsale.finalize();
             (await token.paused.call()).should.be.true;
@@ -162,7 +164,7 @@ contract('CATCrowdsale', function ([_, wallet, remainingsWallet, bitClaveWallet,
 
     makeSuite('presale wallet transfer', async function () {
 
-        before(async function() {
+        beforeEach(async function() {
             crowdsale.mintPresaleTokens(1000);
         })
 
