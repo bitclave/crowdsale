@@ -5,6 +5,10 @@
 
 BitClave crowdsale and token contracts for ICO
 
+# Security auditors:
+
+>*«Great work reusing the existing OpenZeppelin libraries! The additional contracts are very thoughtfully designed, and are a good extension of the framework» – [OpenZeppelin](https://openzeppelin.org)*
+
 # Installation
 
 1. Install [truffle](http://truffleframework.com) globally with `npm install -g truffle`
