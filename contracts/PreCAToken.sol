@@ -8,7 +8,7 @@ import "./BTLToken.sol";
 * @dev Main Bitcalve PreCAT token ERC20 contract
 * Based on references from OpenZeppelin: https://github.com/OpenZeppelin/zeppelin-solidity
 */
-contract CAToken is BTLToken, Destructible {
+contract PreCAToken is BTLToken, Destructible {
 
     // Metadata
     string public constant symbol = "CAT";
