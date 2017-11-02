@@ -22,16 +22,13 @@ contract BonusCrowdsale is Crowdsale, Ownable {
     
     // Members
     uint public tokenPriceInCents;
-    uint public tokenDecimals;
 
     /**
     * @dev Contructor
     * @param _tokenPriceInCents token price in USD cents. The price is fixed
-    * @param _tokenDecimals number of digits after decimal point for CAT token
     */
-    function BonusCrowdsale(uint256 _tokenPriceInCents, uint256 _tokenDecimals) public {
+    function BonusCrowdsale(uint256 _tokenPriceInCents) public {
         tokenPriceInCents = _tokenPriceInCents;
-        tokenDecimals = _tokenDecimals;
     }
 
     /**

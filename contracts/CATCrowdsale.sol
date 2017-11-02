@@ -13,7 +13,7 @@ import "./CAToken.sol";
    * Based on references from OpenZeppelin: https://github.com/OpenZeppelin/zeppelin-solidity
    * 
    */
-contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsale.CAP), PausableCrowdsale(true), BonusCrowdsale(CATCrowdsale.TOKEN_USDCENT_PRICE, CATCrowdsale.DECIMALS) {
+contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsale.CAP), PausableCrowdsale(true), BonusCrowdsale(CATCrowdsale.TOKEN_USDCENT_PRICE) {
 
     // Constants
     uint256 public constant DECIMALS = 18;
