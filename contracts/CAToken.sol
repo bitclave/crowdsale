@@ -5,17 +5,16 @@ import "zeppelin-solidity/contracts/token/PausableToken.sol";
 
 
 /**
-* @dev Pre main Bitcalve BTL token ERC20 contract
+* @dev Pre main Bitcalve CAT token ERC20 contract
 * Based on references from OpenZeppelin: https://github.com/OpenZeppelin/zeppelin-solidity
-* 
 */
-contract BTLToken is MintableToken, PausableToken {
+contract CAToken is MintableToken, PausableToken {
     
     // Metadata
-    string public constant symbol = "BTL";
-    string public constant name = "BitClave Token";
+    string public constant symbol = "CAT";
+    string public constant name = "Consumer Activity Token";
     uint8 public constant decimals = 18;
-    string public constant version = "1.0";
+    string public constant version = "2.0";
 
     /**
     * @dev Override MintableTokenn.finishMinting() to add canMint modifier

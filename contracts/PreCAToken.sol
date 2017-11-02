@@ -1,14 +1,14 @@
 pragma solidity ^0.4.11;
 
 import "zeppelin-solidity/contracts/lifecycle/Destructible.sol";
-import "./BTLToken.sol";
+import "./CAToken.sol";
 
 
 /**
 * @dev Main Bitcalve PreCAT token ERC20 contract
 * Based on references from OpenZeppelin: https://github.com/OpenZeppelin/zeppelin-solidity
 */
-contract PreCAToken is BTLToken, Destructible {
+contract PreCAToken is CAToken, Destructible {
 
     // Metadata
     string public constant symbol = "CAT";
