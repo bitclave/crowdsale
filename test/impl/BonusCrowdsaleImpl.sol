@@ -23,7 +23,7 @@ contract BonusCrowdsaleImpl is Crowdsale, BonusCrowdsale {
         address _wallet
     )
         Crowdsale(_startTime, _endTime, _rate, _wallet)
-        BonusCrowdsale(10, 18) // $0.10, 18 decimals
+        BonusCrowdsale(10) // $0.10
     {
     }
 
