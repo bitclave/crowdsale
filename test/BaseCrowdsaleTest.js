@@ -13,7 +13,7 @@ const should = require('chai')
     .should();
 
 const Crowdsale = artifacts.require('./CATCrowdsale.sol');
-const Token = artifacts.require('./CAToken.sol');
+const Token = artifacts.require('./PreCAToken.sol');
 
 const tokenDecimals = 18;
 const tokenDecimalsIncrease = new BigNumber(10).pow(tokenDecimals);
