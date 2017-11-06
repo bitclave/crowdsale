@@ -13,11 +13,11 @@ import "./PreCAToken.sol";
    * Based on references from OpenZeppelin: https://github.com/OpenZeppelin/zeppelin-solidity
    * 
    */
-contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsale.CAP), PausableCrowdsale(true), BonusCrowdsale(CATCrowdsale.TOKEN_USDCENT_PRICE) {
+contract CATCrowdsale is FinalizableCrowdsale, PausableCrowdsale(true), TokensCappedCrowdsale(CATCrowdsale.INITIAL_CAP), BonusCrowdsale(CATCrowdsale.TOKEN_USDCENT_PRICE) {
 
     // Constants
     uint256 public constant DECIMALS = 18;
-    uint256 public constant CAP = 2 * (10**9) * (10**DECIMALS);              // 2B CAT
+    uint256 public constant INITIAL_CAP = 2 * (10**9) * (10**DECIMALS);      // 2B CAT
     uint256 public constant BITCLAVE_AMOUNT = 1 * (10**9) * (10**DECIMALS);  // 1B CAT
     uint256 public constant TOKEN_USDCENT_PRICE = 10;                        // $0.10
 
