@@ -12,7 +12,7 @@ const should = require('chai')
   .should()
 
 const Crowdsale = artifacts.require('./CATCrowdsale.sol')
-const CAToken = artifacts.require('./CAToken.sol');
+const CAToken = artifacts.require('./PreCAToken.sol');
 
 contract('Crowdsale random tests', function ([_, investor, wallet, purchaser, bitClaveWallet, wallet2, wallet3, wallet4]) {
 

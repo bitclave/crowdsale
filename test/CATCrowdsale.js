@@ -15,7 +15,7 @@ import latestTime from './helpers/latestTime';
 import EVMThrow from './helpers/EVMThrow';
 
 const Crowdsale = artifacts.require('./CATCrowdsale.sol');
-const Token = artifacts.require('./CAToken.sol');
+const Token = artifacts.require('./PreCAToken.sol');
 
 contract('CATCrowdsale', function ([_, wallet, remainingsWallet, bitClaveWallet, wallet2, remainingsWallet2]) {
 

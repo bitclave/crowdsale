@@ -5,6 +5,11 @@
 
 BitClave crowdsale and token contracts
 
+# Security auditors:
+
+>*«Great work reusing the existing OpenZeppelin libraries! The additional contracts are very thoughtfully designed, and are a good extension of the framework» – [OpenZeppelin](https://openzeppelin.org)*.
+See full report [here](https://blog.zeppelin.solutions/bitclave-token-audit-570b0c664eb0).
+
 # Installation
 
 1. Install [truffle](http://truffleframework.com) globally with `npm install -g truffle`

@@ -14,7 +14,7 @@ import {increaseTimeTo, duration} from './helpers/increaseTime';
 import latestTime from './helpers/latestTime';
 import EVMThrow from './helpers/EVMThrow';
 
-const Token = artifacts.require('./CAToken.sol');
+const Token = artifacts.require('./PreCAToken.sol');
 
 contract('CAToken', function ([_, wallet1, wallet2]) {
 

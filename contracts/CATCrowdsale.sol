@@ -5,7 +5,7 @@ import "zeppelin-solidity/contracts/crowdsale/FinalizableCrowdsale.sol";
 import "./TokensCappedCrowdsale.sol";
 import "./PausableCrowdsale.sol";
 import "./BonusCrowdsale.sol";
-import "./CAToken.sol";
+import "./PreCAToken.sol";
 
 
   /**
@@ -13,7 +13,7 @@ import "./CAToken.sol";
    * Based on references from OpenZeppelin: https://github.com/OpenZeppelin/zeppelin-solidity
    * 
    */
-contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsale.CAP), PausableCrowdsale(true), BonusCrowdsale(CATCrowdsale.TOKEN_USDCENT_PRICE, CATCrowdsale.DECIMALS) {
+contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsale.CAP), PausableCrowdsale(true), BonusCrowdsale(CATCrowdsale.TOKEN_USDCENT_PRICE) {
 
     // Constants
     uint256 public constant DECIMALS = 18;
@@ -98,7 +98,7 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
     * @return ERC20 contract associated with the crowdsale
     */
     function createTokenContract() internal returns(MintableToken) {
-        CAToken token = new CAToken();
+        PreCAToken token = new PreCAToken();
         token.pause();
         return token;
     }
@@ -128,14 +128,14 @@ contract CATCrowdsale is FinalizableCrowdsale, TokensCappedCrowdsale(CATCrowdsal
     * @dev Helper to Pause CAToken
     */
     function pauseTokens() public onlyOwner {
-        CAToken(token).pause();
+        PreCAToken(token).pause();
     }
 
     /**
     * @dev Helper to UnPause CAToken
     */
     function unpauseTokens() public onlyOwner {
-        CAToken(token).unpause();
+        PreCAToken(token).unpause();
     }
 
     /**
