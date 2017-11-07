@@ -8,11 +8,16 @@ import "zeppelin-solidity/contracts/crowdsale/Crowdsale.sol";
 * Based on references from OpenZeppelin: https://github.com/OpenZeppelin/zeppelin-solidity
 * 
 */
-contract TokensCappedCrowdsale is Crowdsale {
+contract TokensCappedCrowdsale is Crowdsale, Ownable {
 
     uint256 public tokensCap;
 
     function TokensCappedCrowdsale(uint256 _tokensCap) public {
+        setTokensCap(_tokensCap);
+    }
+
+    function setTokensCap(uint256 _tokensCap) public onlyOwner {
+        require(_tokensCap >= token.totalSupply());
         tokensCap = _tokensCap;
     }
 

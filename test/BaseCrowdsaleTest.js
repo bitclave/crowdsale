@@ -335,7 +335,7 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, walletForMint, wal
 
     it('finalize crowdsale', async function () {
         const totalSupply = await tokens.totalSupply.call();
-        const cap = await crowdsale.CAP.call();
+        const cap = await crowdsale.tokensCap.call();
         residueTokens = cap.minus(totalSupply);
 
         await crowdsale.finalize({from: bitClaveWallet});

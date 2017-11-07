@@ -95,6 +95,11 @@ contract('CATCrowdsale', function ([_, wallet, remainingsWallet, bitClaveWallet,
             await crowdsale.setRemainingTokensWallet(0).should.be.rejectedWith(EVMThrow);
         })
 
+        it('should failure to set CAP less than total supply', async function () {
+            const cap = new BigNumber(await token.totalSupply.call()).sub(1);
+            await crowdsale.setTokensCap(cap).should.be.rejectedWith(EVMThrow);
+        })
+
     })
 
     makeSuite('setters success', async function () {
@@ -115,6 +120,18 @@ contract('CATCrowdsale', function ([_, wallet, remainingsWallet, bitClaveWallet,
             (await crowdsale.remainingTokensWallet.call()).should.be.equal(remainingsWallet);
             await crowdsale.setRemainingTokensWallet(remainingsWallet2);
             (await crowdsale.remainingTokensWallet.call()).should.be.equal(remainingsWallet2);
+        })
+
+        it('should set CAP equal to total supply', async function () {
+            const cap = new BigNumber(await token.totalSupply.call());
+            await crowdsale.setTokensCap(cap);
+            (await crowdsale.tokensCap.call()).should.be.bignumber.equal(cap);
+        })
+
+        it('should set CAP greater than total supply', async function () {
+            const cap = new BigNumber(await token.totalSupply.call()).add(1);
+            await crowdsale.setTokensCap(cap);
+            (await crowdsale.tokensCap.call()).should.be.bignumber.equal(cap);
         })
 
     })
