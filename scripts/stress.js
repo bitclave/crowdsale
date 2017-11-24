@@ -19,11 +19,11 @@ const BigNumber = Web3.BigNumber;
     console.log('Going to spend ' + everyAccountBalance * accCount / (10**18) + ' ETH on stress');
 
     if (ownerPrivateKey.length != 66) {
-        console.log('ownerPrivateKey should be of length 66');
+        console.log('ownerPrivateKey should be of length 66.' + (ownerPrivateKey.length == 64 ? ' Prepend with "0x".' : ''));
         return;
     }
     if (contractAddress.length != 42) {
-        console.log('contractAddress should be of length 42');
+        console.log('contractAddress should be of length 42' + (ownerPrivateKey.length == 40 ? ' Prepend with "0x".' : ''));
         return;
     }
     const ownerAccount = web3.eth.accounts.privateKeyToAccount(ownerPrivateKey);
@@ -47,21 +47,25 @@ const BigNumber = Web3.BigNumber;
     var promises = [];
     for (var i = 0; i < accCount; i++) {
         const account = web3.eth.accounts.wallet[offset + i];
-        promises.push(web3.eth.sendTransaction({
+        const index = i + 1;
+        const promise = web3.eth.sendTransaction({
             from: ownerAccount.address,
             to: account.address,
             value: everyAccountBalance,
             gasPrice: gasPrice,
             gasLimit: 21000,
             nonce: nonce++,
-        }));
+        }).on('transactionHash', function(hash){
+            console.log('Tx #' + index + ': ' + hash);
+        });
+        promises.push(promise);
     }
     console.log('Waiting for ' + promises.length + ' accounts filling ...');
     try {
         await Promise.all(promises);
     } catch (e) {
         console.log(e);
-        readlineSync.question('Press ENTER when mined ... ');
+        readlineSync.question('Press ENTER when mined (https://etherscan.io/address/' + ownerAccount.address + ') ... ');
     }
     console.log('Done');
 
@@ -85,8 +89,13 @@ const BigNumber = Web3.BigNumber;
         for (var j = 0; j < txCount; j++) {
             rawTx.from = account.address;
             rawTx.nonce = j;
-            console.log('Tx #' + j + ' = ' + JSON.stringify(rawTx));
-            transactions.push(web3.eth.sendTransaction(rawTx));
+            const index = j + 1;
+            const transaction = web3.eth.sendTransaction(
+                rawTx
+            ).on('transactionHash', function(hash){
+                console.log('Tx #' + index + ': ' + hash);
+            });
+            transactions.push(transaction);
         }
     }
     console.log('Waiting for ' + transactions.length + ' transactions mining ...');
