@@ -44,10 +44,10 @@ const BigNumber = Web3.BigNumber;
 
     // Send money to wallets
 
+    console.log('Waiting for ' + accCount + ' accounts filling ...');
     var promises = [];
     for (var i = 0; i < accCount; i++) {
         const account = web3.eth.accounts.wallet[offset + i];
-        const index = i + 1;
         const promise = web3.eth.sendTransaction({
             from: ownerAccount.address,
             to: account.address,
@@ -56,11 +56,10 @@ const BigNumber = Web3.BigNumber;
             gasLimit: 21000,
             nonce: nonce++,
         }).on('transactionHash', function(hash){
-            console.log('Tx #' + index + ': ' + hash);
+            console.log(hash);
         });
         promises.push(promise);
     }
-    console.log('Waiting for ' + promises.length + ' accounts filling ...');
     try {
         await Promise.all(promises);
     } catch (e) {
@@ -71,6 +70,7 @@ const BigNumber = Web3.BigNumber;
 
     // Send money to contract
 
+    console.log('Waiting for ' + (web3.eth.accounts.wallet.length - offset) + ' transactions mining ...');
     var transactions = [];
     for (var i = offset; i < web3.eth.accounts.wallet.length; i++) {
         const account = web3.eth.accounts.wallet[i];
@@ -85,20 +85,17 @@ const BigNumber = Web3.BigNumber;
         rawTx.gas = await web3.eth.estimateGas(rawTx);
         rawTx.value = everyAccountBalance / txCount - rawTx.gas * rawTx.gasPrice;
 
-        console.log('From ' + account.address + ':');
         for (var j = 0; j < txCount; j++) {
             rawTx.from = account.address;
             rawTx.nonce = j;
-            const index = j + 1;
             const transaction = web3.eth.sendTransaction(
                 rawTx
             ).on('transactionHash', function(hash){
-                console.log('Tx #' + index + ': ' + hash);
+                console.log(hash);
             });
             transactions.push(transaction);
         }
     }
-    console.log('Waiting for ' + transactions.length + ' transactions mining ...');
     await Promise.all(transactions);
     console.log('Done');
 
