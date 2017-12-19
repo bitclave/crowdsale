@@ -21,7 +21,7 @@ contract MintableMasterToken is MintableToken {
         _;
     }
 
-    function MintableToken() {
+    function MintableMasterToken() {
         mintMaster = msg.sender;
     }
 
