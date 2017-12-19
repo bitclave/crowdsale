@@ -1,5 +1,5 @@
 // @flow
-'use strict'
+'use strict';
 
 const BigNumber = web3.BigNumber;
 const expect = require('chai').expect;
@@ -8,30 +8,70 @@ const should = require('chai')
     .use(require('chai-bignumber')(web3.BigNumber))
     .should();
 
-import ether from './helpers/ether';
-import {advanceBlock} from './helpers/advanceToBlock';
-import {increaseTimeTo, duration} from './helpers/increaseTime';
-import latestTime from './helpers/latestTime';
 import EVMThrow from './helpers/EVMThrow';
 
 const Token = artifacts.require('./PreCAToken.sol');
 
-contract('CAToken', function ([_, wallet1, wallet2]) {
+contract('CAToken', function ([_, wallet1, wallet2, wallet3]) {
 
-    it('should be killable after minting finished with destructor', async function() {
+    it('should be killable after minting finished with destructor', async function () {
         const token = await Token.new();
 
         await token.destroy().should.be.rejectedWith(EVMThrow);
         await token.finishMinting();
         await token.destroy().should.be.fulfilled;
-    })
+    });
 
-    it('should be killable after minting finished with destructor companion', async function() {
+    it('should be killable after minting finished with destructor companion', async function () {
         const token = await Token.new();
 
         await token.destroyAndSend(wallet1).should.be.rejectedWith(EVMThrow);
         await token.finishMinting();
         await token.destroyAndSend(wallet1).should.be.fulfilled;
-    })
+    });
 
-})
+    it('mint to array of addresses owner', async function () {
+        const token = await Token.new();
+        const tokenDecimals = new BigNumber(await token.decimals());
+        const tokenDecimalsIncrease = new BigNumber(10).pow(tokenDecimals);
+        const oneToken = new BigNumber(1).mul(tokenDecimalsIncrease);
+
+        const addresses = [wallet1, wallet2, wallet3];
+        await token.mintToAddresses(addresses, oneToken);
+        await token.mintToAddresses(addresses, oneToken, {from: wallet1})
+            .should
+            .be
+            .rejectedWith(EVMThrow);
+        let balance = await token.balanceOf(wallet1);
+        balance.should.be.bignumber.equal(oneToken);
+
+        balance = await token.balanceOf(wallet2);
+        balance.should.be.bignumber.equal(oneToken);
+
+        balance = await token.balanceOf(wallet3);
+        balance.should.be.bignumber.equal(oneToken);
+    });
+
+    it('mint to array of addresses changed mintMaster', async function () {
+        const token = await Token.new();
+        const tokenDecimals = new BigNumber(await token.decimals());
+        const tokenDecimalsIncrease = new BigNumber(10).pow(tokenDecimals);
+        const oneToken = new BigNumber(1).mul(tokenDecimalsIncrease);
+
+        const addresses = [wallet1, wallet2];
+        await token.transferMintMaster(wallet3);
+        //wallet2 is not owner or mintMaster
+        await token.mintToAddresses(addresses, oneToken, {from: wallet2}).should
+            .be
+            .rejectedWith(EVMThrow);
+
+        await token.mintToAddresses(addresses, oneToken, {from: wallet3});
+
+        let balance = await token.balanceOf(wallet1);
+        balance.should.be.bignumber.equal(oneToken);
+
+        balance = await token.balanceOf(wallet2);
+        balance.should.be.bignumber.equal(oneToken);
+    });
+
+});
