@@ -17,8 +17,15 @@ contract CAToken is MintableMasterToken, PausableToken {
     string public constant version = "2.0";
 
     function mintToAddresses(address[] addresses, uint256 amount) public onlyMintMasterOrOwner canMint {
-        for(uint i = 0; i < addresses.length; i++) {
+        for (uint i = 0; i < addresses.length; i++) {
             require(mint(addresses[i], amount));
+        }
+    }
+
+    function mintToAddressesAndAmounts(address[] addresses, uint256[] amounts) public onlyMintMasterOrOwner canMint {
+        require(addresses.length == amounts.length);
+        for (uint i = 0; i < addresses.length; i++) {
+            require(mint(addresses[i], amounts[i]));
         }
     }
 
