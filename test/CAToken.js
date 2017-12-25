@@ -8,7 +8,7 @@ const should = require('chai')
     .use(require('chai-bignumber')(web3.BigNumber))
     .should();
 
-import EVMThrow from './helpers/EVMThrow';
+import EVMRevert from './helpers/EVMRevert';
 
 const Token = artifacts.require('./PreCAToken.sol');
 
@@ -17,7 +17,7 @@ contract('CAToken', function ([_, wallet1, wallet2, wallet3]) {
     it('should be killable after minting finished with destructor', async function () {
         const token = await Token.new();
 
-        await token.destroy().should.be.rejectedWith(EVMThrow);
+        await token.destroy().should.be.rejectedWith(EVMRevert);
         await token.finishMinting();
         await token.destroy().should.be.fulfilled;
     });
@@ -25,7 +25,7 @@ contract('CAToken', function ([_, wallet1, wallet2, wallet3]) {
     it('should be killable after minting finished with destructor companion', async function () {
         const token = await Token.new();
 
-        await token.destroyAndSend(wallet1).should.be.rejectedWith(EVMThrow);
+        await token.destroyAndSend(wallet1).should.be.rejectedWith(EVMRevert);
         await token.finishMinting();
         await token.destroyAndSend(wallet1).should.be.fulfilled;
     });
@@ -41,7 +41,7 @@ contract('CAToken', function ([_, wallet1, wallet2, wallet3]) {
         await token.mintToAddresses(addresses, oneToken, {from: wallet1})
             .should
             .be
-            .rejectedWith(EVMThrow);
+            .rejectedWith(EVMRevert);
         let balance = await token.balanceOf(wallet1);
         balance.should.be.bignumber.equal(oneToken);
 
@@ -63,7 +63,7 @@ contract('CAToken', function ([_, wallet1, wallet2, wallet3]) {
         //wallet2 is not owner or mintMaster
         await token.mintToAddresses(addresses, oneToken, {from: wallet2}).should
             .be
-            .rejectedWith(EVMThrow);
+            .rejectedWith(EVMRevert);
 
         await token.mintToAddresses(addresses, oneToken, {from: wallet3});
 

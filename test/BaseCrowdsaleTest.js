@@ -2,7 +2,7 @@
 
 import {duration, increaseTimeTo} from "./helpers/increaseTime";
 import latestTime from "./helpers/latestTime";
-import EVMThrow from './helpers/EVMThrow';
+import EVMRevert from './helpers/EVMRevert';
 import {advanceBlock} from './helpers/advanceToBlock';
 import ether from './helpers/ether';
 
@@ -130,7 +130,7 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, walletForMint, wal
     it('mint token only owner', async function () {
         await mintTokens(walletForMint, 5, {from: walletInvestorFirst}).should
             .be
-            .rejectedWith(EVMThrow);
+            .rejectedWith(EVMRevert);
         await mintTokensWithValidateBalance(walletForMint, 5);
     });
 
@@ -139,7 +139,7 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, walletForMint, wal
         await buyTokens(walletInvestorFirst,
             {from: walletInvestorFirst, value: ether(1)}).should
             .be
-            .rejectedWith(EVMThrow);
+            .rejectedWith(EVMRevert);
         await crowdsale.pause();
     });
 
@@ -153,7 +153,7 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, walletForMint, wal
         await buyTokens(walletInvestorFirst,
             {from: walletInvestorFirst, value: ether(1)}).should
             .be
-            .rejectedWith(EVMThrow);
+            .rejectedWith(EVMRevert);
     });
 
     it('send tokens to investor from presale', async function () {
@@ -191,13 +191,13 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, walletForMint, wal
     it('send tokens to investor from presale (transfer already disabled)', async function () {
         await mintPresaleTokensWithValidateBalance(1000).should
             .be
-            .rejectedWith(EVMThrow);
+            .rejectedWith(EVMRevert);
     });
 
     it('try transfer tokens from investor wallet', async function () {
         await tokens.transfer(walletInvestorSecond, 1, {from: walletInvestorFirst}).should
             .be
-            .rejectedWith(EVMThrow);
+            .rejectedWith(EVMRevert);
     });
 
     it('unpause tokens and try transfer tokens from investor wallet', async function () {
@@ -209,7 +209,7 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, walletForMint, wal
 
         await tokens.transfer(walletInvestorSecond, 1, {from: walletInvestorFirst}).should
             .be
-            .rejectedWith(EVMThrow);
+            .rejectedWith(EVMRevert);
     });
 
     it('buy tokens at 2 - 7 days', async function () {
@@ -231,7 +231,7 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, walletForMint, wal
         await buyTokens(walletInvestorFirst,
             {from: walletInvestorFirst, value: tokenDecimalsIncrease.mul(10)}).should
             .be
-            .rejectedWith(EVMThrow);
+            .rejectedWith(EVMRevert);
         await crowdsale.unpause();
     });
 
@@ -312,7 +312,7 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, walletForMint, wal
 
         await mintTokens(walletForMint, 1).should
             .be
-            .rejectedWith(EVMThrow);
+            .rejectedWith(EVMRevert);
 
         await mintTokensWithValidateBalance(walletForMint, 1, {from: bitClaveWallet});
     });
@@ -322,7 +322,7 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, walletForMint, wal
         await buyTokens(walletInvestorSecond,
             {from: walletInvestorSecond, value: tokenDecimalsIncrease.mul(10)}).should
             .be
-            .rejectedWith(EVMThrow);
+            .rejectedWith(EVMRevert);
     });
 
     it('validate totalSupply of tokens', async function () {
@@ -342,7 +342,7 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, walletForMint, wal
 
         await mintTokens(walletForMint, 1,  {from: bitClaveWallet}).should
             .be
-            .rejectedWith(EVMThrow);
+            .rejectedWith(EVMRevert);
     });
 
     it('validate returned funds to main wallet', async function () {
@@ -352,7 +352,7 @@ contract('Crowdsale: ', function ([_, wallet, bitClaveWallet, walletForMint, wal
     it('try transfer tokens from investor wallet. after finalized crowdsale', async function () {
         await tokens.transfer(walletInvestorSecond, 1, {from: walletInvestorFirst}).should
             .be
-            .rejectedWith(EVMThrow);
+            .rejectedWith(EVMRevert);
     });
 
     it('is bitClaveWallet owner of CATToken', async function () {

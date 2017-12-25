@@ -11,8 +11,8 @@ import "zeppelin-solidity/contracts/token/PausableToken.sol";
 contract CAToken is MintableMasterToken, PausableToken {
     
     // Metadata
-    string public constant symbol = "CAT";
-    string public constant name = "Consumer Activity Token";
+    string public constant symbol = "CLAVE";
+    string public constant name = "BitCLave";
     uint8 public constant decimals = 18;
     string public constant version = "2.0";
 

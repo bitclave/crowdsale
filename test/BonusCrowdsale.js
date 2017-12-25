@@ -12,7 +12,7 @@ import ether from './helpers/ether';
 import {advanceBlock} from './helpers/advanceToBlock';
 import {increaseTimeTo, duration} from './helpers/increaseTime';
 import latestTime from './helpers/latestTime';
-import EVMThrow from './helpers/EVMThrow';
+import EVMRevert from './helpers/EVMRevert';
 
 const Crowdsale = artifacts.require('./impl/BonusCrowdsaleImpl.sol');
 const Token = artifacts.require('zeppelin-solidity/contracts/token/MintableToken.sol');
@@ -55,7 +55,7 @@ contract('BonusCrowdsale', function ([_, wallet, wallet2, wallet3]) {
                 [ // 10x percents
                     150,
                 ]
-            ).should.be.rejectedWith(EVMThrow);
+            ).should.be.rejectedWith(EVMRevert);
 
             await crowdsale.setBonusesForAmounts(
                 [ // USD
@@ -67,7 +67,7 @@ contract('BonusCrowdsale', function ([_, wallet, wallet2, wallet3]) {
                     120,
                     110,
                 ]
-            ).should.be.rejectedWith(EVMThrow);
+            ).should.be.rejectedWith(EVMRevert);
         })
 
         it('should not be configurable with incorrect arguments order', async function () {
@@ -80,7 +80,7 @@ contract('BonusCrowdsale', function ([_, wallet, wallet2, wallet3]) {
                     150,
                     100,
                 ]
-            ).should.be.rejectedWith(EVMThrow);
+            ).should.be.rejectedWith(EVMRevert);
 
             await crowdsale.setBonusesForAmounts(
                 [ // USD
@@ -93,7 +93,7 @@ contract('BonusCrowdsale', function ([_, wallet, wallet2, wallet3]) {
                     120,
                     110,
                 ]
-            ).should.be.rejectedWith(EVMThrow);
+            ).should.be.rejectedWith(EVMRevert);
         })
 
     })
