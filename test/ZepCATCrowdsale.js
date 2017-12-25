@@ -2,7 +2,7 @@ import ether from './helpers/ether'
 import {advanceBlock} from './helpers/advanceToBlock'
 import {increaseTimeTo, duration} from './helpers/increaseTime'
 import latestTime from './helpers/latestTime'
-import EVMThrow from './helpers/EVMThrow'
+import EVMRevert from './helpers/EVMRevert'
 
 const BigNumber = web3.BigNumber
 
@@ -325,15 +325,15 @@ contract('Crowdsale random tests', function ([_, investor, wallet, purchaser, bi
 
     it('should not accept minting after end', async function () {
       await increaseTimeTo(this.afterEndTime)
-      await this.crowdsale.mintTokens(investor, 100).should.be.rejectedWith(EVMThrow)
+      await this.crowdsale.mintTokens(investor, 100).should.be.rejectedWith(EVMRevert)
     })
 
     it('should reject minting after finalized', async function () {
       await increaseTimeTo(this.afterEndTime);
       await this.crowdsale.finalize()
-      await this.crowdsale.mintTokens(investor, 100).should.be.rejectedWith(EVMThrow)
-      await this.token.finishMinting().should.be.rejectedWith(EVMThrow);
-      await this.token.mint(investor, 100).should.be.rejectedWith(EVMThrow)
+      await this.crowdsale.mintTokens(investor, 100).should.be.rejectedWith(EVMRevert)
+      await this.token.finishMinting().should.be.rejectedWith(EVMRevert);
+      await this.token.mint(investor, 100).should.be.rejectedWith(EVMRevert)
       // await this.token.mint(investor, 1000000000*10**18)
       // const totalSupply = await this.token.totalSupply();
       // console.log("totalSupply", totalSupply);
@@ -345,16 +345,16 @@ contract('Crowdsale random tests', function ([_, investor, wallet, purchaser, bi
   describe('accepting payments', function () {
 
     it('should reject payments before start', async function () {
-      await this.crowdsale.send(value).should.be.rejectedWith(EVMThrow)
-      await this.crowdsale.buyTokens(investor, {from: purchaser, value: value}).should.be.rejectedWith(EVMThrow)
+      await this.crowdsale.send(value).should.be.rejectedWith(EVMRevert)
+      await this.crowdsale.buyTokens(investor, {from: purchaser, value: value}).should.be.rejectedWith(EVMRevert)
     })
 
     it('should reject payments while paused', async function () {
       await increaseTimeTo(this.startTime + duration.hours(5))
       // await this.crowdsale.pause();
 
-      await this.crowdsale.send(value).should.be.rejectedWith(EVMThrow)
-      await this.crowdsale.buyTokens(investor, {from: purchaser, value: value}).should.be.rejectedWith(EVMThrow)
+      await this.crowdsale.send(value).should.be.rejectedWith(EVMRevert)
+      await this.crowdsale.buyTokens(investor, {from: purchaser, value: value}).should.be.rejectedWith(EVMRevert)
     })
 
     it('should accept payments after unpaused', async function () {
@@ -385,7 +385,7 @@ contract('Crowdsale random tests', function ([_, investor, wallet, purchaser, bi
       
       // let balance = await this.token.balanceOf(investor);
       // console.log("balance", balance);
-      await this.token.transfer(wallet3, 5, {from: investor}).should.be.rejectedWith(EVMThrow)
+      await this.token.transfer(wallet3, 5, {from: investor}).should.be.rejectedWith(EVMRevert)
     })
 
     it('should allow transfer for unpaused token', async function () {
@@ -402,8 +402,8 @@ contract('Crowdsale random tests', function ([_, investor, wallet, purchaser, bi
 
     it('should reject payments after end', async function () {
       await increaseTimeTo(this.afterEndTime)
-      await this.crowdsale.send(value).should.be.rejectedWith(EVMThrow)
-      await this.crowdsale.buyTokens(investor, {value: value, from: purchaser}).should.be.rejectedWith(EVMThrow)
+      await this.crowdsale.send(value).should.be.rejectedWith(EVMRevert)
+      await this.crowdsale.buyTokens(investor, {value: value, from: purchaser}).should.be.rejectedWith(EVMRevert)
     })
 
   })

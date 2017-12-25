@@ -12,7 +12,7 @@ import ether from './helpers/ether';
 import {advanceBlock} from './helpers/advanceToBlock';
 import {increaseTimeTo, duration} from './helpers/increaseTime';
 import latestTime from './helpers/latestTime';
-import EVMThrow from './helpers/EVMThrow';
+import EVMRevert from './helpers/EVMRevert';
 
 const Crowdsale = artifacts.require('./CATCrowdsale.sol');
 const Token = artifacts.require('./PreCAToken.sol');
@@ -51,32 +51,32 @@ contract('CATCrowdsale', function ([_, wallet, remainingsWallet, bitClaveWallet,
     makeSuite('mint failure', async function () {
 
         it('should failure to mint tokens to 0', async function () {
-            await crowdsale.mintTokens(0, 1).should.be.rejectedWith(EVMThrow);
+            await crowdsale.mintTokens(0, 1).should.be.rejectedWith(EVMRevert);
         })
 
         it('should failure to mint 0 tokens', async function () {
-            await crowdsale.mintTokens(wallet, 0).should.be.rejectedWith(EVMThrow);
+            await crowdsale.mintTokens(wallet, 0).should.be.rejectedWith(EVMRevert);
         })
 
         it('should failure to mint to many tokens', async function () {
-            await crowdsale.mintTokens(wallet, (new BigNumber((10**9) * (10**decimals))).add(1)).should.be.rejectedWith(EVMThrow);
+            await crowdsale.mintTokens(wallet, (new BigNumber((10**9) * (10**decimals))).add(1)).should.be.rejectedWith(EVMRevert);
         })
 
         it('should failure to mint after finalization', async function () {
             await increaseTimeTo(afterEndTime);
             await crowdsale.finalize();
-            await crowdsale.mintTokens(wallet, 1).should.be.rejectedWith(EVMThrow);
+            await crowdsale.mintTokens(wallet, 1).should.be.rejectedWith(EVMRevert);
         })
 
         it('should failure to mint after early finalization', async function () {
             await crowdsale.mintTokens(wallet, (10 ** 9) * (10 ** decimals));
             await crowdsale.finalize();
-            await crowdsale.mintTokens(wallet2, 1).should.be.rejectedWith(EVMThrow);
+            await crowdsale.mintTokens(wallet2, 1).should.be.rejectedWith(EVMRevert);
         })
 
         it('should failure to mint after endTime', async function () {
             await increaseTimeTo(afterEndTime);
-            await crowdsale.mintTokens(wallet, 1).should.be.rejectedWith(EVMThrow);
+            await crowdsale.mintTokens(wallet, 1).should.be.rejectedWith(EVMRevert);
         })
 
     })
@@ -84,15 +84,15 @@ contract('CATCrowdsale', function ([_, wallet, remainingsWallet, bitClaveWallet,
     makeSuite('setters failure', async function () {
 
         it('should failure to set 0 to rate', async function () {
-            await crowdsale.setRate(0).should.be.rejectedWith(EVMThrow);
+            await crowdsale.setRate(0).should.be.rejectedWith(EVMRevert);
         })
 
         it('should failure to set 0 to wallet', async function () {
-            await crowdsale.setWallet(0).should.be.rejectedWith(EVMThrow);
+            await crowdsale.setWallet(0).should.be.rejectedWith(EVMRevert);
         })
 
         it('should failure to set 0 to remainings wallet', async function () {
-            await crowdsale.setRemainingTokensWallet(0).should.be.rejectedWith(EVMThrow);
+            await crowdsale.setRemainingTokensWallet(0).should.be.rejectedWith(EVMRevert);
         })
 
     })
@@ -169,16 +169,16 @@ contract('CATCrowdsale', function ([_, wallet, remainingsWallet, bitClaveWallet,
         it('should not works after finalization', async function () {
             await increaseTimeTo(afterEndTime);
             await crowdsale.finalize();
-            await crowdsale.setEndTime(afterEndTime + duration.days(1)).should.be.rejectedWith(EVMThrow);
+            await crowdsale.setEndTime(afterEndTime + duration.days(1)).should.be.rejectedWith(EVMRevert);
         })
 
         it('should not be able to set before start time', async function () {
-            await crowdsale.setEndTime(startTime - duration.seconds(1)).should.be.rejectedWith(EVMThrow);
+            await crowdsale.setEndTime(startTime - duration.seconds(1)).should.be.rejectedWith(EVMRevert);
         })
 
         it('should not be able to set present time', async function () {
             await increaseTimeTo(midTime);
-            await crowdsale.setEndTime(midTime - duration.seconds(1)).should.be.rejectedWith(EVMThrow);
+            await crowdsale.setEndTime(midTime - duration.seconds(1)).should.be.rejectedWith(EVMRevert);
         })
 
         it('should be able to set end time', async function () {

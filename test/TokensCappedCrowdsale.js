@@ -12,7 +12,7 @@ import ether from './helpers/ether';
 import {advanceBlock} from './helpers/advanceToBlock';
 import {increaseTimeTo, duration} from './helpers/increaseTime';
 import latestTime from './helpers/latestTime';
-import EVMThrow from './helpers/EVMThrow';
+import EVMRevert from './helpers/EVMRevert';
 
 const Crowdsale = artifacts.require('./impl/TokensCappedCrowdsaleImpl.sol');
 const Token = artifacts.require('zeppelin-solidity/contracts/token/MintableToken.sol');
@@ -34,7 +34,7 @@ contract('TokensCappedCrowdsale', function ([_, wallet, wallet2, wallet3, wallet
 
         {
             // Fails to create too many tokens
-            await crowdsale.buyTokens(wallet2, {from: wallet2, value: 1500}).should.be.rejectedWith(EVMThrow);
+            await crowdsale.buyTokens(wallet2, {from: wallet2, value: 1500}).should.be.rejectedWith(EVMRevert);
             const totalSupply = await token.totalSupply.call();
             totalSupply.should.be.bignumber.equal(0);
             const hasEnded = await crowdsale.hasEnded.call();
@@ -60,7 +60,7 @@ contract('TokensCappedCrowdsale', function ([_, wallet, wallet2, wallet3, wallet
         }
 
         // Fails to create one more token
-        await crowdsale.buyTokens(wallet4, {from: wallet4, value: 1}).should.be.rejectedWith(EVMThrow);
+        await crowdsale.buyTokens(wallet4, {from: wallet4, value: 1}).should.be.rejectedWith(EVMRevert);
     })
 
 })

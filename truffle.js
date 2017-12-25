@@ -14,13 +14,19 @@ module.exports = {
             host: "localhost",
             port: 8545,
             network_id: "*",
-            gas: 6000000
+            gas: 8000000
         },
         coverage: {
             host: "localhost",
             port: 8555,
             network_id: "*",
             gas: 0xffffffff
+        }
+    },
+    solc: {
+        optimizer: {
+          enabled: true,
+          runs: 200
         }
     }
 };

@@ -12,7 +12,7 @@ import ether from './helpers/ether';
 import {advanceBlock} from './helpers/advanceToBlock';
 import {increaseTimeTo, duration} from './helpers/increaseTime';
 import latestTime from './helpers/latestTime';
-import EVMThrow from './helpers/EVMThrow';
+import EVMRevert from './helpers/EVMRevert';
 
 const PausedCrowdsale = artifacts.require('./impl/PausableCrowdsaleImplPaused.sol');
 const UnpausedCrowdsale = artifacts.require('./impl/PausableCrowdsaleImplUnpaused.sol');
